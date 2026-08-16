@@ -17,7 +17,6 @@ OBJS = \
 	$(SRC)/2DCMC.o					$(SRC)/auxiliar.o				\
 	$(SRC)/CCar.o					$(SRC)/CPlayer.o				\
 	$(SRC)/debug.o					$(SRC)/EnemyCCar.o				\
-	$(SRC)/F1SComputer.o			$(SRC)/F1Shttp.o				\
 	$(SRC)/F1SpiritApp.o			$(SRC)/F1Spirit-auxiliar.o		\
 	$(SRC)/F1SpiritGame.o			$(SRC)/F1SpiritTrackViewer.o	\
 	$(SRC)/GameParameters.o			$(SRC)/geometrics.o				\
@@ -39,8 +38,8 @@ OBJS = \
 	$(SRC)/filehandling.o			$(SRC)/CarEngineSound.o
 
 CC = gcc
-CFLAGS = -g3 -O3 -Wno-write-strings `sdl-config --cflags` `curl-config --cflags`
-LDFLAGS = `sdl-config --libs` `curl-config --libs` -lSDL_image -lSDL_mixer -lSDL_net -lm -lstdc++ -lGL
+CFLAGS = -g3 -O3 -Wno-write-strings `sdl-config --cflags`
+LDFLAGS = `sdl-config --libs` -lSDL_image -lSDL_mixer -lm -lstdc++ -lGL
 CFLAGS += -Wno-write-strings
 RM = rm -f
 CP = cp -r

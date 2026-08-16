@@ -14,9 +14,6 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <SDL_image.h>
-#include <SDL_net.h>
-
-#include <curl/curl.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -30,7 +27,6 @@
 #include "CPlayer.h"
 #include "CCar.h"
 #include "2DCMC.h"
-#include "F1Shttp.h"
 #include "RoadPiece.h"
 #include "track.h"
 #include "RacingCCar.h"
@@ -51,14 +47,10 @@
 #endif
 
 extern int application_version;
-extern int LISTENING_TIME;
 extern int N_SFX_CHANNELS;
 extern bool sound;
 extern int SCREEN_X;
 extern int SCREEN_Y;
-extern bool network;
-extern int network_tcp_port;
-extern int network_udp_port;
 
 #define MENU_CONSTANT 20
 #define TRACKPREVIEW_CONSTANT 25
@@ -1255,139 +1247,6 @@ void F1SpiritApp::menu_draw(void)
 	}
 
 
-	/* Network menus: player list & chat window */
-	if (!arcade)
-	{
-		if (menu_playerlist_timmer > 0) {
-			float f = menu_playerlist_timmer / 50.0F;
-
-			if (menu_playerlist_frame == 0) {
-				int dx, dy;
-				SDL_Surface *sfc;
-
-				dx = 168;
-				dy = 256;
-				sfc = SDL_CreateRGBSurface(SDL_SWSURFACE, dx + 32, dy + 32, 32, RMASK, GMASK, BMASK, AMASK);
-				SDL_FillRect(sfc, 0, 0);
-				draw_menu_frame(sfc, 0, 0, dx + 32, dy + 32);
-
-				menu_playerlist_frame = new GLTile(sfc);
-			} 
-
-			menu_playerlist_frame->draw(1, 1, 1, f, float(8), float(8), 0, 0, 1);
-
-			/* Draw player list: */
-			{
-				int y = 24;
-				GLTile *t;
-				SDL_Surface *sfc;
-				List<F1SComputer> l;
-				F1SComputer *c;
-
-				sfc = SDL_CreateRGBSurface(SDL_SWSURFACE, get_text_width_bmp((unsigned char *)menu_local_computer.name, font, 0), small_font->h, 32, RMASK, GMASK, BMASK, AMASK);
-				SDL_FillRect(sfc, 0, 0);
-				print_left_bmp((unsigned char *)menu_local_computer.name, small_font, sfc, 0, 0, 0);
-
-				t = new GLTile(sfc);
-				t->set_hotspot(0, 0);
-
-				t->draw(0.5F, 0.5F, 1, f, float(24), float(y), 0, 0, 1);
-				delete t;
-				y += 10;
-
-				if (!menu_local_is_server &&
-				        menu_selected_server != 0 &&
-				        menu_selected_server->name[0] != 0) {
-					sfc = SDL_CreateRGBSurface(SDL_SWSURFACE, get_text_width_bmp((unsigned char *)menu_selected_server->name, small_font, 0), font->h, 32, RMASK, GMASK, BMASK, AMASK);
-					SDL_FillRect(sfc, 0, 0);
-					print_left_bmp((unsigned char *)menu_selected_server->name, small_font, sfc, 0, 0, 0);
-
-					t = new GLTile(sfc);
-					t->set_hotspot(0, 0);
-
-					t->draw(1, 1, 1, f, float(24), float(y), 0, 0, 1);
-					delete t;
-					y += 10;
-				} 
-
-				l.Instance(menu_registered_clients);
-
-				l.Rewind();
-
-				while (l.Iterate(c)) {
-					sfc = SDL_CreateRGBSurface(SDL_SWSURFACE, get_text_width_bmp((unsigned char *)c->name, font, 0), small_font->h, 32, RMASK, GMASK, BMASK, AMASK);
-					SDL_FillRect(sfc, 0, 0);
-					print_left_bmp((unsigned char *)c->name, small_font, sfc, 0, 0, 0);
-
-					t = new GLTile(sfc);
-					t->set_hotspot(0, 0);
-
-					t->draw(1, 1, 1, f, float(24), float(y), 0, 0, 1);
-					delete t;
-					y += 10;
-				} 
-			}
-		} 
-
-		if (menu_chat_timmer > 0) {
-			float f = menu_playerlist_timmer / 50.0F;
-
-			if (menu_chat_frame == 0) {
-				int dx, dy;
-				SDL_Surface *sfc;
-
-				dx = 400;
-				dy = 256;
-				sfc = SDL_CreateRGBSurface(SDL_SWSURFACE, dx + 32, dy + 32, 32, RMASK, GMASK, BMASK, AMASK);
-				SDL_FillRect(sfc, 0, 0);
-				draw_menu_frame(sfc, 0, 0, dx + 32, dy + 32);
-
-				menu_chat_frame = new GLTile(sfc);
-			} 
-
-			menu_chat_frame->draw(1, 1, 1, f, float(208), float(8), 0, 0, 1);
-
-			/* Draw chat messages: */
-			{
-				int y = 24;
-				GLTile *t;
-				SDL_Surface *sfc;
-				List<ChatMessage> l;
-				ChatMessage *m;
-				char tmp[320];
-
-				while (menu_chat_messages.Length() > 26) {
-					m = menu_chat_messages.ExtractIni();
-					delete m;
-				} 
-
-				l.Instance(menu_chat_messages);
-
-				l.Rewind();
-
-				while (l.Iterate(m)) {
-					sprintf(tmp, "%s: %s", m->name, m->message);
-
-					sfc = SDL_CreateRGBSurface(SDL_SWSURFACE, get_text_width_bmp((unsigned char *)tmp, font, 0), small_font->h, 32, RMASK, GMASK, BMASK, AMASK);
-					SDL_FillRect(sfc, 0, 0);
-					print_left_bmp((unsigned char *)tmp, small_font, sfc, 0, 0, 0);
-
-					t = new GLTile(sfc);
-					t->set_hotspot(0, 0);
-
-					if (strcmp(m->name, menu_local_computer.name) == 0) {
-						t->draw(0.5, 0.5, 1, f, float(224), float(y), 0, 0, 1);
-					} else {
-						t->draw(1, 1, 1, f, float(224), float(y), 0, 0, 1);
-					} 
-
-					delete t;
-
-					y += 10;
-				} 
-			}
-		} 
-	}
 
 
 	if (menu_fading != 0) {

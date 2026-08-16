@@ -17,9 +17,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
-#include <SDL_net.h>
-
-#include <curl/curl.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -33,7 +30,6 @@
 #include "CPlayer.h"
 #include "CCar.h"
 #include "2DCMC.h"
-#include "F1Shttp.h"
 #include "RoadPiece.h"
 #include "track.h"
 #include "RacingCCar.h"
@@ -54,14 +50,10 @@
 extern int SCREEN_X;
 extern int SCREEN_Y;
 extern int COLOUR_DEPTH;
-extern int MAX_CONNECTIONS;
 extern bool sound;
 extern int frames_per_sec;
 extern bool show_fps;
 extern bool fullscreen;
-extern bool network;
-extern int network_tcp_port;
-extern int network_udp_port;
 
 extern bool show_console_msg;
 extern char console_msg[80];
@@ -367,15 +359,6 @@ F1SpiritApp::F1SpiritApp()
 
 #endif
 
-	menu_register_http = 0;
-	menu_server_registered = false;
-	menu_server_register_timmer = 0;
-	menu_client_register_timmer = 0;
-	menu_playerlist_frame = 0;
-	menu_chat_frame = 0;
-	menu_playerlist_timmer = 0;
-	menu_chat_timmer = 0;
-	menu_local_is_server = false;
 	menu_multiplayer_n_enemycars = 0;
 	menu_multiplayer_enemy_speed = 0;
 
@@ -394,14 +377,6 @@ F1SpiritApp::F1SpiritApp()
 	replaymanager_game = 0;
 	replaymanager_replay_playing = false;
 	replaymanager_replay_viewport = 0;
-
-	if (network) {
-		menu_socket_set = SDLNet_AllocSocketSet(MAX_CONNECTIONS + 1);
-		menu_local_computer.tcp_socket = 0;
-		menu_local_computer.udp_socket = 0;
-	} 
-
-	menu_selected_server = 0;
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 
@@ -550,24 +525,6 @@ F1SpiritApp::~F1SpiritApp()
 
 	Sound_delete_sound(S_menu_select);
 
-	if (menu_register_http != 0) {
-		delete menu_register_http;
-	}
-
-	menu_register_http = 0;
-
-	if (menu_playerlist_frame != 0) {
-		delete menu_playerlist_frame;
-	}
-
-	menu_playerlist_frame = 0;
-
-	if (menu_chat_frame != 0) {
-		delete menu_chat_frame;
-	}
-
-	menu_chat_frame = 0;
-
 	delete race_game;
 
 	race_game = 0;
@@ -587,20 +544,9 @@ F1SpiritApp::~F1SpiritApp()
 	Sound_delete_sound(S_wrong);
 	Sound_delete_sound(S_pause);
 
-	if (network) {
-		SDLNet_FreeSocketSet(menu_socket_set);
-	}
-
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 	output_debug_message("F1-Spirit release finished\n");
 #endif
-
-	if (menu_available_servers.MemberRefP(menu_selected_server)) {
-		menu_selected_server = 0;
-	} else {
-		delete menu_selected_server;
-		menu_selected_server = 0;
-	}
 }
 
 

@@ -12,7 +12,6 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <SDL_image.h>
-#include <SDL_net.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -54,13 +53,8 @@ int SCREEN_Y = 480;
 int g_stencil_bits = 0;
 int N_SFX_CHANNELS = 16;
 int COLOUR_DEPTH = 32;
-int MAX_CONNECTIONS = 16;
 bool sound = true;
 bool fullscreen = false;
-bool network = true;
-int network_tcp_port = 32124;
-int network_udp_port = 32125;
-int LISTENING_TIME = 1;
 
 TRanrotBGenerator *rg = 0;
 
@@ -181,27 +175,7 @@ SDL_Surface *initialization(int flags)
 		output_debug_message("Audio initialized\n");
 #endif
 
-	} 
-
-	// Network:
-#ifdef F1SPIRIT_DEBUG_MESSAGES
-	output_debug_message("Initializing SDL_net...\n");
-
-#endif
-
-	if (SDLNet_Init() == -1) {
-#ifdef F1SPIRIT_DEBUG_MESSAGES
-		output_debug_message("Error initializing SDL_net: %s.\n", SDLNet_GetError());
-#endif
-
-		network = false;
-	} else {
-#ifdef F1SPIRIT_DEBUG_MESSAGES
-		output_debug_message("SDL_net initialized.\n");
-#endif
-
-		network = true;
-	} 
+	}
 
 	SDL_EnableUNICODE(1);
 
@@ -222,10 +196,6 @@ void finalization()
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 	output_debug_message("Finalizing SDL\n");
 #endif
-
-	if (network) {
-		SDLNet_Quit();
-	} 
 
 	delete rg;
 

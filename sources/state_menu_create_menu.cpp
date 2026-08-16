@@ -14,9 +14,6 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <SDL_image.h>
-#include <SDL_net.h>
-
-#include <curl/curl.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -30,7 +27,6 @@
 #include "CPlayer.h"
 #include "CCar.h"
 #include "2DCMC.h"
-#include "F1Shttp.h"
 #include "RoadPiece.h"
 #include "track.h"
 #include "RacingCCar.h"
@@ -51,14 +47,10 @@
 #endif
 
 extern int application_version;
-extern int LISTENING_TIME;
 extern int N_SFX_CHANNELS;
 extern bool sound;
 extern int SCREEN_X;
 extern int SCREEN_Y;
-extern bool network;
-extern int network_tcp_port;
-extern int network_udp_port;
 
 extern char *f1spirit_replay_version;
 
@@ -294,22 +286,20 @@ void F1SpiritApp::menu_create_menu(void)
 			{
 				menu_title[0] = new char[strlen(current_player->get_name()) + 1];
 				strcpy(menu_title[0], current_player->get_name());
-				menu_options[0] = new char[strlen("PLAY\nCONFIGURE\nHELP\nHIGH SCORES\nREPLAYS\nWEB\nTITLE SCREEN\n") + 1];
-				strcpy(menu_options[0], "PLAY\nCONFIGURE\nHELP\nHIGH SCORES\nREPLAYS\nWEB\nTITLE SCREEN\n");
-				menu_noptions[0] = 7;
+				menu_options[0] = new char[strlen("PLAY\nCONFIGURE\nHELP\nHIGH SCORES\nREPLAYS\nTITLE SCREEN\n") + 1];
+				strcpy(menu_options[0], "PLAY\nCONFIGURE\nHELP\nHIGH SCORES\nREPLAYS\nTITLE SCREEN\n");
+				menu_noptions[0] = 6;
 				menu_option_type[0][0] = 1;
 				menu_option_type[0][1] = 1;
 				menu_option_type[0][2] = 1;
 				menu_option_type[0][3] = 9;
 				menu_option_type[0][4] = 9;
-				menu_option_type[0][5] = 1;
-				menu_option_type[0][6] = 0;
+				menu_option_type[0][5] = 0;
 				menu_option_parameter[0][0] = 25;
 				menu_option_parameter[0][1] = 5;
 				menu_option_parameter[0][2] = 23;
 				menu_option_parameter[0][3] = 0;
 				menu_option_parameter[0][4] = 1;
-				menu_option_parameter[0][5] = 29;
 				menu_first_option[0] = 0;
 			}
 			else {
@@ -332,20 +322,15 @@ void F1SpiritApp::menu_create_menu(void)
 		case 25:
 			menu_title[0] = new char[strlen("GAME MODE") + 1];
 			strcpy(menu_title[0], "GAME MODE");
-			menu_options[0] = new char[strlen("1 PLAYER\nMULTIPLAYER\nNETWORK\nBACK\n") + 1];
-			strcpy(menu_options[0], "1 PLAYER\nMULTIPLAYER\nNETWORK\nBACK\n");
-			menu_noptions[0] = 4;
+			menu_options[0] = new char[strlen("1 PLAYER\nMULTIPLAYER\nBACK\n") + 1];
+			strcpy(menu_options[0], "1 PLAYER\nMULTIPLAYER\nBACK\n");
+			menu_noptions[0] = 3;
 			menu_option_type[0][0] = 1;
 			menu_option_type[0][1] = 1;
-			if (network)
-				menu_option_type[0][2] = 1;
-			else
-				menu_option_type[0][2] = -1;
-			menu_option_type[0][3] = 1;
+			menu_option_type[0][2] = 1;
 			menu_option_parameter[0][0] = 9;
 			menu_option_parameter[0][1] = 21;
-			menu_option_parameter[0][2] = 30;
-			menu_option_parameter[0][3] = 4;
+			menu_option_parameter[0][2] = 4;
 			menu_first_option[0] = 0;
 			break;
 		case 5+210:
@@ -1179,107 +1164,6 @@ void F1SpiritApp::menu_create_menu(void)
 
 			break;
 
-		case 29:
-			/* ON-LINE SERVICES: */
-			menu_title[0] = new char[strlen("ON-LINE SERVICES") + 1];
-			strcpy(menu_title[0], "ON-LINE SERVICES");
-
-			if (current_player == friendly_player) {
-				menu_options[0] = new char[strlen("DOWNLOAD HIGHSCORES\nBACK\n") + 1];
-				strcpy(menu_options[0], "DOWNLOAD HIGHSCORES\nBACK\n");
-				menu_noptions[0] = 2;
-				menu_option_type[0][0] = 26;
-				menu_option_type[0][1] = 1;
-				menu_option_parameter[0][0] = 36;
-				menu_option_parameter[0][1] = 4;
-				menu_first_option[0] = 0;
-			} else {
-				menu_options[0] = new char[strlen("REGISTER\nUPLOAD HIGHSCORES\nDOWNLOAD HIGHSCORES\nBACK\n") + 1];
-				strcpy(menu_options[0], "REGISTER\nUPLOAD HIGHSCORES\nDOWNLOAD HIGHSCORES\nBACK\n");
-				menu_noptions[0] = 4;
-				menu_option_type[0][0] = 27;
-				menu_option_type[0][1] = 28;
-				menu_option_type[0][2] = 26;
-				menu_option_type[0][3] = 1;
-				menu_option_parameter[0][0] = 31;
-				menu_option_parameter[0][1] = 35;
-				menu_option_parameter[0][2] = 36;
-				menu_option_parameter[0][3] = 4;
-				menu_first_option[0] = 0;
-			} 
-
-			break;
-
-		case 31: { /* HTTP REGISTER: */
-				menu_title[0] = new char[strlen("REGISTERING...") + 1];
-				strcpy(menu_title[0], "REGISTERING...");
-				menu_options[0] = new char[strlen("CANCEL\n") + 1];
-				strcpy(menu_options[0], "CANCEL\n");
-				menu_editing[0] = 0;
-				menu_noptions[0] = 1;
-				menu_option_type[0][0] = 25;
-				menu_option_parameter[0][0] = 29;
-				menu_first_option[0] = 0;
-			}
-
-			break;
-
-		case 32: {
-				menu_title[0] = new char[strlen("OPERATION SUCCEED") + 1];
-				strcpy(menu_title[0], "OPERATION SUCCEED");
-				menu_options[0] = new char[strlen("BACK\n") + 1];
-				strcpy(menu_options[0], "BACK\n");
-				menu_editing[0] = 0;
-				menu_noptions[0] = 1;
-				menu_option_type[0][0] = 1;
-				menu_option_parameter[0][0] = 29;
-				menu_first_option[0] = 0;
-			}
-
-			break;
-
-		case 33: {
-				menu_title[0] = new char[strlen("OPERATION FAILED") + 1];
-				strcpy(menu_title[0], "OPERATION FAILED");
-				menu_options[0] = new char[strlen("BACK\n") + 1];
-				strcpy(menu_options[0], "BACK\n");
-				menu_editing[0] = 0;
-				menu_noptions[0] = 1;
-				menu_option_type[0][0] = 1;
-				menu_option_parameter[0][0] = 29;
-				menu_first_option[0] = 0;
-			}
-
-			break;
-
-		case 35: { /* UPLOADING RECORDS: */
-				menu_title[0] = new char[strlen("UPLOADING...") + 1];
-				strcpy(menu_title[0], "UPLOADING...");
-				menu_options[0] = new char[strlen("CANCEL\n") + 1];
-				strcpy(menu_options[0], "CANCEL\n");
-				menu_editing[0] = 0;
-				menu_noptions[0] = 1;
-				menu_option_type[0][0] = 1;
-				menu_option_parameter[0][0] = 29;
-				menu_first_option[0] = 0;
-			}
-
-			break;
-
-		case 36: { /* DOWNLOADING RECORDS: */
-				menu_title[0] = new char[strlen("DOWNLOADING...") + 1];
-				strcpy(menu_title[0], "DOWNLOADING...");
-				menu_options[0] = new char[strlen("CANCEL\n") + 1];
-				strcpy(menu_options[0], "CANCEL\n");
-				menu_editing[0] = 0;
-				menu_noptions[0] = 1;
-				menu_option_type[0][0] = 1;
-				menu_option_parameter[0][0] = 29;
-				menu_first_option[0] = 0;
-			}
-
-			break;
-
 			/* SELECTION OF N� OF ENEMY CARS AND OF ENEMY SPEED IN MULTIPLAYER MODES: */
 
 		case 46: {
@@ -1302,292 +1186,6 @@ void F1SpiritApp::menu_create_menu(void)
 				menu_first_option[0] = 0;
 			}
 
-			break;
-
-			/* NETWORK MENUS: */
-
-		case 30:
-			menu_title[0] = new char[strlen("NETWORK GAME") + 1];
-			strcpy(menu_title[0], "NETWORK GAME");
-			menu_options[0] = new char[strlen("SERVER\nCLIENT\nBACK\n") + 1];
-			strcpy(menu_options[0], "SERVER\nCLIENT\nBACK\n");
-			menu_noptions[0] = 3;
-			menu_option_type[0][0] = 1;
-			menu_option_type[0][1] = 1; /* retrieve server list */
-			menu_option_type[0][2] = 1;
-			menu_option_parameter[0][0] = 34;
-			menu_option_parameter[0][1] = 45;
-			menu_option_parameter[0][2] = 4;
-			menu_first_option[0] = 0;
-			break;
-
-		case 45:
-			menu_title[0] = new char[strlen("ENTER CLIENT NAME:") + 1];
-			strcpy(menu_title[0], "ENTER CLIENT NAME:");
-			menu_options[0] = new char[strlen("_\nBACK\n") + 1];
-			strcpy(menu_options[0], "_\nBACK\n");
-			menu_editing[0] = 0;
-			menu_noptions[0] = 2;
-			menu_option_type[0][0] = 34;
-			menu_option_type[0][1] = 1;
-			menu_option_parameter[0][0] = 201;
-			menu_option_parameter[0][1] = 30;
-			menu_first_option[0] = 0;
-			menu_editing_valid = false;
-			break;
-
-		case 34:
-			menu_title[0] = new char[strlen("SERVER TYPE") + 1];
-			strcpy(menu_title[0], "SERVER TYPE");
-			menu_options[0] = new char[strlen("DEDICATED\nNORMAL PLAYER\nBACK\n") + 1];
-			strcpy(menu_options[0], "DEDICATED\nNORMAL PLAYER\nBACK\n");
-			menu_noptions[0] = 3;
-			menu_option_type[0][0] = 1;
-			menu_option_type[0][1] = 1;
-			menu_option_type[0][2] = 1;
-			menu_option_parameter[0][0] = 39;
-			menu_option_parameter[0][1] = 39;
-			menu_option_parameter[0][2] = 30;
-			menu_first_option[0] = 0;
-			break;
-
-		case 39:
-			menu_title[0] = new char[strlen("MAKE THIS SERVER PUBLIC?") + 1];
-			strcpy(menu_title[0], "MAKE THIS SERVER PUBLIC?");
-			menu_options[0] = new char[strlen("YES\nNO\nBACK\n") + 1];
-			strcpy(menu_options[0], "YES\nNO\nBACK\n");
-			menu_noptions[0] = 3;
-			menu_option_type[0][0] = 1;
-			menu_option_type[0][1] = 1;
-			menu_option_type[0][2] = 1;
-			menu_option_parameter[0][0] = 40;
-			menu_option_parameter[0][1] = 43;
-			menu_option_parameter[0][2] = 30;
-			menu_first_option[0] = 0;
-			break;
-
-		case 40: /* SERVER NAME FOR PUBLIC SERVERS */
-			menu_title[0] = new char[strlen("ENTER SERVER NAME:") + 1];
-			strcpy(menu_title[0], "ENTER SERVER NAME:");
-			menu_options[0] = new char[strlen("_\nBACK\n") + 1];
-			strcpy(menu_options[0], "_\nBACK\n");
-			menu_editing[0] = 0;
-			menu_noptions[0] = 2;
-			menu_option_type[0][0] = 29; /* REGISTER */
-			menu_option_type[0][2] = 1;
-			menu_option_parameter[0][0] = 41;
-			menu_option_parameter[0][2] = 39;
-			menu_first_option[0] = 0;
-			menu_editing_valid = false;
-			break;
-
-		case 43: /* SERVER NAME FOR PRIVATE SERVERS */
-			menu_title[0] = new char[strlen("ENTER SERVER NAME:") + 1];
-			strcpy(menu_title[0], "ENTER SERVER NAME:");
-			menu_options[0] = new char[strlen("_\nBACK\n") + 1];
-			strcpy(menu_options[0], "_\nBACK\n");
-			menu_editing[0] = 0;
-			menu_noptions[0] = 2;
-			menu_option_type[0][0] = 31;
-			menu_option_type[0][1] = 1;
-			menu_option_parameter[0][0] = 100;
-			menu_option_parameter[0][1] = 39;
-			menu_first_option[0] = 0;
-			menu_editing_valid = false;
-			break;
-
-		case 41:
-			/* registering server: */
-			menu_title[0] = new char[strlen("REGISTERING SERVER...") + 1];
-			strcpy(menu_title[0], "REGISTERING SERVER...");
-			menu_options[0] = new char[strlen("CANCEL\n") + 1];
-			strcpy(menu_options[0], "CANCEL\n");
-			menu_noptions[0] = 1;
-			menu_option_type[0][0] = 25;
-			menu_option_parameter[0][0] = 39;
-			menu_first_option[0] = 0;
-			break;
-
-		case 42:
-			/* unable to register server: */
-			menu_title[0] = new char[strlen("UNABLE TO REGISTER SERVER") + 1];
-			strcpy(menu_title[0], "UNABLE TO REGISTER SERVER");
-			menu_options[0] = new char[strlen("BACK\n") + 1];
-			strcpy(menu_options[0], "BACK\n");
-			menu_noptions[0] = 1;
-			menu_option_type[0][0] = 1; /* IF REGISTERED, UNREGISTER */
-			menu_option_parameter[0][0] = 39;
-			menu_first_option[0] = 0;
-			break;
-
-
-		case 100:
-			/* server chat room: */
-			menu_title[0] = new char[strlen("F-1 SPIRIT SERVER") + 1];
-			strcpy(menu_title[0], "F-1 SPIRIT SERVER");
-			menu_options[0] = new char[strlen("_\nTERMINATE\n") + 1];
-			strcpy(menu_options[0], "_\nTERMINATE\n");
-			menu_editing[0] = 0;
-			menu_noptions[0] = 2;
-			menu_option_type[0][0] = 32; /* CHAT MESSAGE */
-			menu_option_parameter[0][0] = 0;
-
-			if (menu_server_registered) {
-				menu_option_type[0][1] = 30; /* IF REGISTERED, UNREGISTER */
-				menu_option_parameter[0][1] = 101;
-			} else {
-				menu_option_type[0][1] = 1;
-				menu_option_parameter[0][1] = 4;
-			} 
-
-			menu_first_option[0] = 0;
-
-			break;
-
-		case 101:
-			/* unregistering server: */
-			menu_title[0] = new char[strlen("UNREGISTERING SERVER...") + 1];
-
-			strcpy(menu_title[0], "UNREGISTERING SERVER...");
-
-			menu_options[0] = new char[strlen("CANCEL\n") + 1];
-
-			strcpy(menu_options[0], "CANCEL\n");
-
-			menu_noptions[0] = 1;
-
-			menu_option_type[0][0] = 25;
-
-			menu_option_parameter[0][0] = 100;
-
-			menu_first_option[0] = 0;
-
-			break;
-
-		case 200:
-			/* client chat room: */
-			menu_title[0] = new char[strlen("F-1 SPIRIT CLIENT") + 1];
-
-			strcpy(menu_title[0], "F-1 SPIRIT CLIENT");
-
-			menu_options[0] = new char[strlen("_\nTERMINATE\n") + 1];
-
-			strcpy(menu_options[0], "_\nTERMINATE\n");
-
-			menu_noptions[0] = 1;
-
-			menu_editing[0] = 0;
-
-			menu_noptions[0] = 2;
-
-			menu_option_type[0][0] = 32; /* CHAT MESSAGE */
-
-			menu_option_parameter[0][0] = 0;
-
-			menu_option_type[0][1] = 37; /* IF REGISTERED, UNREGISTER */
-
-			menu_option_parameter[0][1] = 4;
-
-			menu_first_option[0] = 0;
-
-			break;
-
-
-		case 201:
-			menu_title[0] = new char[strlen("LOOKING FOR SERVERS...") + 1];
-
-			strcpy(menu_title[0], "LOOKING FOR SERVERS...");
-
-			menu_options[0] = new char[strlen("CANCEL\nBACK\n") + 1];
-
-			strcpy(menu_options[0], "CANCEL\nBACK\n");
-
-			menu_noptions[0] = 2;
-
-			menu_option_type[0][0] = 25;
-
-			menu_option_parameter[0][0] = 202;
-
-			menu_option_type[0][1] = 25;
-
-			menu_option_parameter[0][1] = 30;
-
-			menu_first_option[0] = 0;
-
-			break;
-
-		case 202: {
-				char *base1 = "IP: _\n";
-				char *base2 = "BACK\n";
-				char *tmp;
-				int len, i;
-				Uint32 ip;
-				unsigned char *ipp;
-				List<F1SComputer> l;
-				F1SComputer *c;
-
-				len = strlen(base1) + strlen(base2) + 1 + (32) * menu_available_servers.Length();
-				tmp = new char[len];
-
-				sprintf(tmp, base1);
-				l.Instance(menu_available_servers);
-				l.Rewind();
-
-				while (l.Iterate(c)) {
-					i = strlen(tmp);
-					ip = SDLNet_Read32(&(c->ip.host));
-					ipp = (unsigned char *) & ip;
-					sprintf(tmp + i, "%i.%i.%i.%i: %s\n", int(ipp[3]), int(ipp[2]), int(ipp[1]), int(ipp[0]), c->name);
-				} 
-
-				i = strlen(tmp);
-
-				sprintf(tmp + i, base2);
-
-				menu_title[0] = new char[strlen("SERVER LIST") + 1];
-
-				strcpy(menu_title[0], "SERVER LIST");
-
-				menu_options[0] = new char[strlen(tmp) + 1];
-
-				strcpy(menu_options[0], tmp);
-
-				delete tmp;
-
-				menu_noptions[0] = 2 + menu_available_servers.Length();
-
-				menu_option_type[0][0] = 35;
-
-				menu_option_parameter[0][0] = 200;
-
-				for (i = 0;i < menu_available_servers.Length();i++) {
-					menu_option_type[0][i + 1] = 36;
-					menu_option_parameter[0][i + 1] = 200;
-				} 
-
-				menu_option_type[0][i + 1] = 1;
-
-				menu_option_parameter[0][i + 1] = 30;
-
-				menu_first_option[0] = 0;
-
-				menu_editing[0] = 0;
-
-				menu_editing_valid = false;
-			}
-
-			break;
-
-		case 203:
-			/* Waiting for server answer (after a request to register) */
-			menu_title[0] = new char[strlen("WAITING FOR SERVER...") + 1];
-			strcpy(menu_title[0], "WAITING FOR SERVER...");
-			menu_options[0] = new char[strlen("CANCEL\n") + 1];
-			strcpy(menu_options[0], "CANCEL\n");
-			menu_noptions[0] = 1;
-			menu_option_type[0][0] = 1;
-			menu_option_parameter[0][0] = 201;
-			menu_first_option[0] = 0;
 			break;
 
 	} 

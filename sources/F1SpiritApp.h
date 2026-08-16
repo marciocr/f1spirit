@@ -16,19 +16,6 @@
 #define APP_STATE_END   -1
 
 
-#define MSG_ACK    0
-#define MSG_NACK   1
-#define MSG_REGISTER  2 /* va acompa�ado de 'size' (2 bytes) + 'name' (size bytes) */
-#define MSG_UNREGISTER  3
-#define MSG_CHAT   4 /* namesize + name + msgsize + msg */
-#define MSG_NAME_QUERY  5
-#define MSG_NAME   6
-#define MSG_ADDCLIENT  7
-#define MSG_SUBCLIENT  8
-#define MSG_ACTIVITY_CHECK 9
-#define MSG_ACTIVITY_ANSWER 10
-
-
 class HiScoreEntry
 {
 
@@ -36,31 +23,6 @@ class HiScoreEntry
 		char name[32];
 		int points;
 		int totaltime;
-};
-
-
-class F1SComputer
-{
-
-	public:
-		F1SComputer();
-		~F1SComputer();
-
-		int activity_counter; /* is used by the server to detect if any client has lost connection */
-		char name[32];
-		IPaddress ip;
-		TCPsocket tcp_socket;
-		UDPsocket udp_socket;
-		int tcp_port;
-		int udp_port;
-};
-
-class ChatMessage
-{
-
-	public:
-		char name[32];
-		char message[256];
 };
 
 
@@ -195,7 +157,6 @@ class F1SpiritApp
 		GLTile *menu_locked;
 		bool menu_track_locked;
 		char menu_stored_player_name[80];
-		bool menu_server_registered;
 
 		int menu_selected_track;
 		int menu_selected_nplayers;
@@ -233,22 +194,6 @@ class F1SpiritApp
 
 		int menu_multiplayer_n_enemycars;
 		int menu_multiplayer_enemy_speed;
-
-		/* MENU - NETWORK: */
-
-		class F1Shttp *menu_register_http;
-		int menu_server_register_timmer;
-		int menu_client_register_timmer;
-		GLTile *menu_playerlist_frame, *menu_chat_frame;
-		int menu_playerlist_timmer;
-		int menu_chat_timmer;
-		List<ChatMessage> menu_chat_messages;
-		SDLNet_SocketSet menu_socket_set;
-		bool menu_local_is_server;
-		List<F1SComputer> menu_registered_clients;
-		List<F1SComputer> menu_available_servers;
-		F1SComputer menu_local_computer;
-		F1SComputer *menu_selected_server;
 
 		/* RACE: */
 		int race_state;
