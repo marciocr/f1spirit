@@ -79,13 +79,8 @@ void F1SpiritApp::menu_create_menu(void)
 				if (nplayers > 0) {
 					menu_title[0] = new char[strlen("CHOOSE AN OPTION") + 1];
 					strcpy(menu_title[0], "CHOOSE AN OPTION");
-#ifdef HAVE_C4A
-					menu_options[0] = new char[strlen("CONTINUE GAME\nNEW GAME\nPRACTICE MODE\nC4A GAME\nTITLE SCREEN\n") + 1];
-					strcpy(menu_options[0], "CONTINUE GAME\nNEW GAME\nPRACTICE MODE\nC4A GAME\nTITLE SCREEN\n");
-#else
 					menu_options[0] = new char[strlen("CONTINUE GAME\nNEW GAME\nPRACTICE MODE\nARCADE GAME\nTITLE SCREEN\n") + 1];
 					strcpy(menu_options[0], "CONTINUE GAME\nNEW GAME\nPRACTICE MODE\nARCADE GAME\nTITLE SCREEN\n");
-#endif
 					menu_noptions[0] = 5;
 					menu_option_type[0][0] = 1;
 					menu_option_type[0][1] = 1;
@@ -102,13 +97,8 @@ void F1SpiritApp::menu_create_menu(void)
 				} else {
 					menu_title[0] = new char[strlen("CHOOSE AN OPTION") + 1];
 					strcpy(menu_title[0], "CHOOSE AN OPTION");
-#ifdef HAVE_C4A
-					menu_options[0] = new char[strlen("NEW GAME\nPRACTICE MODE\nC4A GAME\nTITLE SCREEN\n") + 1];
-					strcpy(menu_options[0], "NEW GAME\nPRACTICE MODE\nC4A GAME\nTITLE SCREEN\n");
-#else
 					menu_options[0] = new char[strlen("NEW GAME\nPRACTICE MODE\nARCADE GAME\nTITLE SCREEN\n") + 1];
 					strcpy(menu_options[0], "NEW GAME\nPRACTICE MODE\nARCADE GAME\nTITLE SCREEN\n");
-#endif
 					menu_noptions[0] = 4;
 					menu_option_type[0][0] = 1;
 					menu_option_type[0][1] = 1;

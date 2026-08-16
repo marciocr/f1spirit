@@ -3685,13 +3685,7 @@ void F1SpiritGame::draw(bool draw_scoreboard)
 void F1SpiritGame::draw_dispersed_hud(PlayerCCar *v)
 {
 	char tmp[80];
-	#if defined(PANDORA)
-	#define ADDX 80
-	#elif defined(PYRA)
-	#define ADDX 80
-	#else
 	#define ADDX 0
-	#endif
 
 	/* Fixed part: */
 	hud_fixed_1->draw(float(v->vx - ADDX), float(v->vy), 0, 0, 1);

@@ -660,9 +660,6 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 
 			if (menu_option_type[browsing][menu_selected[browsing]] != 2 &&
 			        ((k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE])
-#if defined(PANDORA) || defined(PYRA)
-					||  (k->keyboard[SDLK_PAGEDOWN] && !k->old_keyboard[SDLK_PAGEDOWN])
-#endif
 				))
 				{
 				if (menu_option_type[browsing][menu_selected[browsing]] != 19 &&

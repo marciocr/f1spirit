@@ -98,14 +98,6 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 
 		/* Set the High scores: */
 		if (current_player != 0) {
-#ifdef HAVE_C4A
-			if (arcade) {
-				char buf[500];
-				sprintf(buf, "fusilli --cache push f1spirit %i 0", arcade_result);
-				//printf("%s\n", buf);
-				if (arcade_result>0) system(buf);
-			} else
-#endif
 			{
 				Uint32 points[9] = {9, 8, 7, 6, 5, 4, 3, 2, 1};
 
@@ -269,9 +261,6 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 			} 
 
 			if ((k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE]) ||
-#if defined(PANDORA) || defined(PYRA)
-					(k->keyboard[SDLK_PAGEDOWN] && !k->old_keyboard[SDLK_PAGEDOWN]) ||
-#endif
 			        (k->keyboard[SDLK_RETURN] && !k->old_keyboard[SDLK_RETURN])) {
 				Sound_play(S_menu_select, 128);
 				raceresult_timmer = 0;
@@ -504,11 +493,7 @@ void F1SpiritApp::race_result_draw(void)
 	{
 
 		int i, j;
-		#ifdef PANDORA
-		int dx = 32, dy = 32;
-		#else
 		int dx = 16, dy = 16;
-		#endif
 		float x1, y1, x2, y2;
 		Vector prev_v1, prev_v2, v;
 		float prev_z1, prev_z2, z;
@@ -810,11 +795,7 @@ void F1SpiritApp::race_result_draw(void)
 			delete t;
 			y += 32;
 			if (arcade) {
-#ifdef HAVE_C4A
-				sprintf((char *)tmp, "C4A SCORE  :%i", arcade_result);
-#else
 				sprintf((char *)tmp, "ARCADE SCORE  :%i", arcade_result);
-#endif
 				sfc = SDL_CreateRGBSurface(SDL_SWSURFACE, get_text_width_bmp((unsigned char *)tmp, font, 0), font->h, 32, RMASK, GMASK, BMASK, AMASK);
 				print_left_bmp((unsigned char *)tmp, font, sfc, 0, 0, 0);
 				t = new GLTile(sfc);

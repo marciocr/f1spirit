@@ -98,9 +98,6 @@ int F1SpiritApp::title_cycle(KEYBOARDSTATE *k)
 
 	if (state_cycle < TITLE_TIMMER4) {
 		if ((k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE])
-#if defined(PANDORA) || defined(PYRA)
-			||  (k->keyboard[SDLK_PAGEDOWN] && !k->old_keyboard[SDLK_PAGEDOWN]) 
-#endif
 			)
 			state_cycle = int(TITLE_TIMMER4);
 
@@ -111,9 +108,6 @@ int F1SpiritApp::title_cycle(KEYBOARDSTATE *k)
 	if (state_cycle > TITLE_TIMMER4) {
 		if (title_state == 0 &&
 		        ((k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE])
-#if defined(PANDORA) || defined(PYRA)
-				||  (k->keyboard[SDLK_PAGEDOWN] && !k->old_keyboard[SDLK_PAGEDOWN])
-#endif
 		))
 		{
 			title_state = 1;
@@ -215,11 +209,7 @@ void F1SpiritApp::title_draw(void)
 		/* draw the flag: */
 		if (state_cycle < TITLE_TIMMER6) {
 			int i, j;
-			#ifdef PANDORA
-			int dx = 32, dy = 32;
-			#else
 			int dx = 16, dy = 16;
-			#endif
 			float x1, y1, x2, y2;
 			Vector prev_v1, prev_v2, v;
 			float prev_z1, prev_z2, z;

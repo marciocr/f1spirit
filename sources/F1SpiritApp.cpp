@@ -74,11 +74,7 @@ void gluPerspective( float fovY, float aspect, float zNear, float zFar )
  float fW, fH;
  fH = tanf( fovY / 360 * pi ) * zNear;
  fW = fH * aspect;
-#ifdef HAVE_GLES
- glFrustumf( -fW, fW, -fH, fH, zNear, zFar );
-#else
  glFrustum( -fW, fW, -fH, fH, zNear, zFar );
-#endif
 }
 
 //LookAt from https://forums.khronos.org/showthread.php/4991-The-Solution-for-gluLookAt()-Function!!!!
@@ -743,9 +739,7 @@ void F1SpiritApp::draw()
 
 	glDisable( GL_DEPTH_TEST );
 
-	#ifndef HAVE_GLES
 	glPolygonMode(GL_FRONT, GL_FILL);
-	#endif
 
 	glClearColor(0, 0, 0, 0.0);
 
@@ -848,11 +842,7 @@ void F1SpiritApp::draw()
 	
 	glDisable(GL_BLEND);
 
-	#ifdef HAVE_GLES
-	EGL_SwapBuffers();
-	#else
 	SDL_GL_SwapBuffers();
-	#endif
 }
 
 void F1SpiritApp::blank_hiscores(void)

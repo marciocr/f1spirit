@@ -348,9 +348,7 @@ void CRoadPiece::draw(float offs, int n_textures, GLuint *textures, int n_ltextu
 		float r_width, r_width_inc;
 
 		if (!special) {
-			#ifndef HAVE_GLES
 			glEnable(GL_COLOR_MATERIAL);
-			#endif
 			glEnable(GL_TEXTURE_2D);
 		}
 
@@ -633,11 +631,7 @@ void CRoadPiece::draw_linear(void)
 	float t_rchicane = rchicane1;
 	float dist = float(sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
 
-	#ifdef PANDORA0
-	steps = int((dist / 64) + 1);
-	#else
 	steps = int((dist / 16) + 1);
-	#endif
 
 	float t_a_inc = (a2 - a1) / float(steps);
 	float t_w_inc = (w2 - w1) / float(steps);
@@ -788,11 +782,7 @@ void CRoadPiece::draw_circular_adapted(void)
 	float t_a = float(a1), t_w = float(w1);
 	float dist = float(sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
 
-	#ifdef PANDORA0
-	steps = int((dist / 64) + 1);
-	#else
 	steps = int((dist / 16) + 1);
-	#endif
 
 	float t_w_inc = (w2 - w1) / float(steps);
 	float t_z_inc = (z2 - z1) / float(steps);

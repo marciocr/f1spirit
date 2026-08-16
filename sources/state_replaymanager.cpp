@@ -187,9 +187,6 @@ int F1SpiritApp::replaymanager_cycle(KEYBOARDSTATE *k)
 					} 
 
 					if ((k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE])
-#if defined(PANDORA) || defined(PYRA)
-					||  (k->keyboard[SDLK_PAGEDOWN] && !k->old_keyboard[SDLK_PAGEDOWN]) 
-#endif
 					)
 					{
 						if (replaymanager_replay_playing) {
@@ -314,11 +311,7 @@ void F1SpiritApp::replaymanager_draw(void)
 
 	if (replaymanager_replay_viewport < 25) {
 		int i, j;
-		#ifdef PANDORA
-		int dx = 64, dy = 64;
-		#else
 		int dx = 16, dy = 16;
-		#endif
 		float x1, y1, x2, y2;
 		Vector prev_v1, prev_v2, v;
 		float prev_z1, prev_z2, z;

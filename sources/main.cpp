@@ -49,18 +49,8 @@
 
 char *application_name = "F-1 Spirit";
 int application_version = 0;
-#ifdef PANDORA
-int SCREEN_X = 800;
-#elif defined(PYRA)
-int SCREEN_X = 1280;
-#else
 int SCREEN_X = 640;
-#endif
-#ifdef PYRA
-int SCREEN_Y = 720;
-#else
 int SCREEN_Y = 480;
-#endif
 int g_stencil_bits = 0;
 int N_SFX_CHANNELS = 16;
 int COLOUR_DEPTH = 32;
@@ -138,7 +128,6 @@ SDL_Surface *initialization(int flags)
 	output_debug_message("Setting OpenGL attributes\n");
 
 #endif
-#ifndef HAVE_GLES
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
@@ -146,7 +135,6 @@ SDL_Surface *initialization(int flags)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-#endif
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 	output_debug_message("OpenGL attributes set\n");
 
@@ -157,16 +145,7 @@ SDL_Surface *initialization(int flags)
 	output_debug_message("Initializing video mode\n");
 
 #endif
-#ifdef HAVE_GLES
-	fullscreen = true;
-	flags = SDL_FULLSCREEN;
-#else
-#ifdef PYRA
-        fullscreen = true;
-        flags = SDL_FULLSCREEN;
-#endif
 	flags = SDL_OPENGL | flags;
-#endif
 	screen = SDL_SetVideoMode((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y, bpp, flags);
 
 	if (screen == 0) {
@@ -175,10 +154,7 @@ SDL_Surface *initialization(int flags)
 #endif
 
 		return 0;
-	} 
-#ifdef HAVE_GLES
-	EGL_Open((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y);
-#endif
+	}
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 	output_debug_message("Video mode initialized\n");
@@ -261,10 +237,7 @@ void finalization()
 		Sound_release();
 		
 	IMG_Quit();
-	
-#ifdef HAVE_GLES
-	EGL_Close();
-#endif
+
 	SDL_Quit();
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
@@ -298,9 +271,6 @@ int main(int argc, char** argv) {
 
 	output_debug_message("Application started\n");
 #endif
-#ifdef HAVE_GLES
-	fullscreen = true;
-#endif
 	screen_sfc = initialization((fullscreen ? SDL_FULLSCREEN : 0));
 
 	if (screen_sfc == 0)
@@ -309,29 +279,6 @@ int main(int argc, char** argv) {
 	k = new KEYBOARDSTATE();
 
 	game = new F1SpiritApp();
-
-	#if 0//ndef HAVE_GLES
-	// why recreating the context ???
-	if (fullscreen) {
-	#ifdef HAVE_GLES
-		EGL_Close();
-		screen_sfc = SDL_SetVideoMode((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y, COLOUR_DEPTH, (fullscreen ? SDL_FULLSCREEN : 0));
-		EGL_Open((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y);
-	#else
-		screen_sfc = SDL_SetVideoMode((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y, COLOUR_DEPTH, SDL_OPENGL | (fullscreen ? SDL_FULLSCREEN : 0));
-	#endif
-		SDL_WM_SetCaption(application_name, 0);
-		SDL_ShowCursor(SDL_DISABLE);
-		reload_textures++;
-
-	#ifndef HAVE_GLES
-		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	#endif
-	} 
-	#endif
 
 	time = init_time = SDL_GetTicks();
 	
@@ -421,33 +368,22 @@ int main(int argc, char** argv) {
 								fullscreen = false;
 							else
 								fullscreen = true;
-							#ifndef HAVE_GLES
-
-							#ifdef HAVE_GLES
-							EGL_Close();
 							screen_sfc = SDL_SetVideoMode((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y, COLOUR_DEPTH, SDL_OPENGL | (fullscreen ? SDL_FULLSCREEN : 0));
-							EGL_Open((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y);
-							#else
-							screen_sfc = SDL_SetVideoMode((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y, COLOUR_DEPTH, SDL_OPENGL | (fullscreen ? SDL_FULLSCREEN : 0));
-							#endif
 
 							calcMinMax((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y);
-							
+
 							SDL_WM_SetCaption(application_name, 0);
 
 							SDL_ShowCursor(SDL_DISABLE);
 
 							reload_textures++;
 
-							#ifndef HAVE_GLES
 							SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 							SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 							SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 							SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 							SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 							SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-							#endif
-							#endif
 						}
 					}
 
@@ -500,11 +436,7 @@ int main(int argc, char** argv) {
 			    init_time=act_time;
 			   } // if
 			*/
-			// On PANDORA, let's target 25 fps...
 			int min_frame=1;
-			#ifdef PANDORA
-			min_frame=2;
-			#endif
 
 			do {
 				time += REDRAWING_PERIOD;
@@ -543,11 +475,9 @@ int main(int argc, char** argv) {
 			init_time = act_time;
 		} 
 
-		#ifndef PANDORA
 		SDL_Delay(1);
-		#endif
 
-	} 
+	}
 
 
 	delete k;

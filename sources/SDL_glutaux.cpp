@@ -3,10 +3,6 @@
 #endif
 
 #include "3DStuff.h"
-#ifdef HAVE_GLES
-#define GL_RGBA8 	GL_RGBA
-#define GL_CLAMP	GL_CLAMP_TO_EDGE
-#endif
 
 #include <SDL.h>
 #include <SDL_image.h>

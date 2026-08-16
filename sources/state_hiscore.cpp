@@ -113,11 +113,7 @@ void F1SpiritApp::hiscore_draw(void)
 
 	{
 		int i, j;
-		#ifdef PANDORA
-		int dx = 32, dy = 32;
-		#else
 		int dx = 16, dy = 16;
-		#endif
 
 		float x1, y1, x2, y2;
 		Vector prev_v1, prev_v2, v;

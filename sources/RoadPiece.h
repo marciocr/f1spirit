@@ -121,13 +121,6 @@ class CRoadPiece
 		float *r_z;
 		float *r_cx1, *r_cy1;
 		float *r_cx2, *r_cy2;
-/*
-		#ifdef HAVE_GLES
-		GLfloat *vtx;
-		GLfloat *tex1;
-		GLushort *indices;
-		#endif
-*/
 		float bbox[4];
 
 		/* path: */

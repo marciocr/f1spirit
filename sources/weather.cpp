@@ -173,11 +173,7 @@ void F1SpiritGame::draw_nightmode_nostencil(PlayerCCar *v)
 
 void F1SpiritGame::draw_nightmode_stencil(PlayerCCar *v)
 {
-	#ifdef HAVE_GLES
-	/*TODO* save things */
-	#else
 	glPushAttrib( GL_ALL_ATTRIB_BITS );
-	#endif
 	/* Draw the car lights in the stencil buffer: */
 	{
 		int i;
@@ -311,13 +307,8 @@ void F1SpiritGame::draw_nightmode_stencil(PlayerCCar *v)
 		
 	}
 
-	#ifdef HAVE_GLES
-	glDisable( GL_STENCIL_TEST );
-	/*TODO* restaure saved things */
-	#else
 	glPopAttrib();
-	#endif
-} 
+}
 
 
 void F1SpiritGame::draw_rain(PlayerCCar *v, float rain_strength)
@@ -352,8 +343,6 @@ void F1SpiritGame::draw_rain(PlayerCCar *v, float rain_strength)
 		}
 	}
 	glEnd();
-	#ifndef HAVE_GLES
-	// disbaled this effect on GLES, too taxing on the system, and not visible enough
 	m_rain_drops.Rewind();
 	while (m_rain_drops.Iterate(rd)) {
 		if (rd->z >= 0) {
@@ -378,7 +367,6 @@ void F1SpiritGame::draw_rain(PlayerCCar *v, float rain_strength)
 			glEnd();
 		} // if
 	} // while
-	#endif
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	#undef glBegin
@@ -403,15 +391,9 @@ void F1SpiritGame::draw_rain(PlayerCCar *v, float rain_strength)
 
 
 // quick random for rain:
-#if defined(PANDORA) || defined(PYRA)
-#define RAIN_RANDOM_SIZE	99999
-#define RAIN_DROPS_PER_CYCLE	80
-#define RAIN_DROPS_SPAN	700
-#else
 #define RAIN_RANDOM_SIZE	99999
 #define RAIN_DROPS_PER_CYCLE	800
 #define RAIN_DROPS_SPAN	700
-#endif
 
 bool quick_rain_random_generated = false;
 float quick_random_a[RAIN_RANDOM_SIZE];
