@@ -9,8 +9,8 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
 #include "Vector.h"
@@ -157,7 +157,7 @@ int F1SpiritApp::endsequence_cycle(KEYBOARDSTATE *k)
 			break;
 	} 
 
-	if (k->keyboard[SDLK_ESCAPE] && !k->old_keyboard[SDLK_ESCAPE]) {
+	if (k->keyboard[SDL_SCANCODE_ESCAPE] && !k->old_keyboard[SDL_SCANCODE_ESCAPE]) {
 		if (endsequence_state != 7) {
 			endsequence_state = 7;
 			endsequence_timmer = 0;

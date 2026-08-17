@@ -8,9 +8,9 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -46,7 +46,7 @@
 extern bool sound;
 extern TRanrotBGenerator *rg;
 
-void carEngineSoundEffect(int chan, void *stream, int len, void *udata);
+void carEngineSoundEffect(void *userdata, struct MIX_Track *track, const SDL_AudioSpec *spec, float *pcm, int samples);
 
 
 CEngine::CEngine(float p, float c, float e, int m)
@@ -329,8 +329,9 @@ CCar::~CCar()
 	tshadow = 0;
 
 	if (carengine_channel >= 0 && sound) {
-		Mix_HaltChannel(carengine_channel);
-		Mix_UnregisterAllEffects(carengine_channel);
+		MIX_Track *t = Sound_get_channel_track(carengine_channel);
+		MIX_StopTrack(t, 0);
+		MIX_SetTrackRawCallback(t, 0, 0);
 	}
 
 	S_carengine = 0;
@@ -842,14 +843,20 @@ bool CCar::cycle(bool kaccelerate, bool kbrake, int kgear, int kturn, CRoadPiece
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 		output_debug_message("Starting the engine sound in channel: %i\n", carengine_channel);
 #endif
-		Mix_HaltChannel(0);
-//		Mix_UnregisterAllEffects(carengine_channel);
-		if(!Mix_RegisterEffect(carengine_channel, carEngineSoundEffect, NULL, this)) {
+		{
+			MIX_Track *t = Sound_get_channel_track(carengine_channel);
+			MIX_StopTrack(Sound_get_channel_track(0), 0);
+
+			if (!MIX_SetTrackRawCallback(t, carEngineSoundEffect, this)) {
 #ifdef F1SPIRIT_DEBUG_MESSAGES
-		    output_debug_message("Mix_RegisterEffect: %s\n", Mix_GetError());
+				output_debug_message("MIX_SetTrackRawCallback: %s\n", SDL_GetError());
 #endif
+			}
+
+			MIX_SetTrackAudio(t, S_carengine);
+			MIX_SetTrackLoops(t, -1);
+			MIX_PlayTrack(t, 0);
 		}
-		Mix_PlayChannel(carengine_channel, S_carengine, -1);
 		carengine_sounding = true;
 	} // if
 

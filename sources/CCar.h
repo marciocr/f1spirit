@@ -146,18 +146,18 @@ class CCar
 
 		friend class CReplayInfo;
 
-		friend void carEngineSoundEffect(int chan, void *stream, int len, void *udata);
+		friend void carEngineSoundEffect(void *userdata, struct MIX_Track *track, const SDL_AudioSpec *spec, float *pcm, int samples);
 
 	public:
 		CCar(CEngine *e, CBody *body, CBrake *brake, CSuspension *s, CGear *gear, int type, int model, float r, float g, float b, bool player, SOUNDT engine_sound, int engine_channel, GLTile **pextra_tiles, SDL_Surface *car_sfc, SDL_Surface *car_minimap_sfc, class F1SpiritGame *game);
 		~CCar();
 
 		void pauseSFX() {
-			if (carengine_channel>=0) Mix_Pause(carengine_channel);
+			if (carengine_channel>=0) MIX_PauseTrack(Sound_get_channel_track(carengine_channel));
 		}
 
 		void resumeSFX() {
-			if (carengine_channel>=0) Mix_Resume(carengine_channel);
+			if (carengine_channel>=0) MIX_ResumeTrack(Sound_get_channel_track(carengine_channel));
 		}
 
 		bool save_configuration(FILE *fp);

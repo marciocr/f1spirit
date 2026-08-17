@@ -9,7 +9,7 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "List.h"
 #include "Vector.h"

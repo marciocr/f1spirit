@@ -37,10 +37,13 @@ OBJS = \
 	$(SRC)/Vector.o					$(SRC)/weather.o				\
 	$(SRC)/filehandling.o			$(SRC)/CarEngineSound.o
 
-CC = gcc
-CFLAGS = -g3 -O3 -Wno-write-strings `sdl-config --cflags`
-LDFLAGS = `sdl-config --libs` -lSDL_image -lSDL_mixer -lm -lstdc++ -lGL
-CFLAGS += -Wno-write-strings
+CXX = g++
+# SDL3_mixer isn't packaged everywhere yet, so its pkg-config lookup is called
+# separately (with stderr silenced) from the others: a single pkg-config
+# invocation covering several modules fails *entirely*, for every module,
+# the moment just one of them isn't installed.
+CFLAGS = -g3 -O3 -Wno-write-strings `pkg-config --cflags sdl3 sdl3-image` `pkg-config --cflags sdl3-mixer 2>/dev/null`
+LDFLAGS = `pkg-config --libs sdl3 sdl3-image` `pkg-config --libs sdl3-mixer 2>/dev/null` -lm -lGL
 RM = rm -f
 CP = cp -r
 MD = mkdir -p
@@ -51,10 +54,10 @@ STRIP = strip
 all: $(EXE)
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CFLAGS) -c $< -o $@
 
 $(EXE): $(OBJS)
-	$(CC) $^ -o $@ $(LDFLAGS)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 #	@$(STRIP) $@
 	@$(ECHO) " o If there are no errors, the game compiled succesfully"
 

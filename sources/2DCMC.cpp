@@ -5,7 +5,7 @@
 #include "math.h"
 
 #include "3DStuff.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "stdlib.h"
 #include "auxiliar.h"

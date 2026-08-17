@@ -9,8 +9,8 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
 #include "Vector.h"
@@ -96,17 +96,17 @@ int F1SpiritApp::title_cycle(KEYBOARDSTATE *k)
 
 
 	if (state_cycle < TITLE_TIMMER4) {
-		if ((k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE])
+		if ((k->keyboard[SDL_SCANCODE_SPACE] && !k->old_keyboard[SDL_SCANCODE_SPACE])
 			)
 			state_cycle = int(TITLE_TIMMER4);
 
-		if (k->keyboard[SDLK_ESCAPE] && !k->old_keyboard[SDLK_ESCAPE])
+		if (k->keyboard[SDL_SCANCODE_ESCAPE] && !k->old_keyboard[SDL_SCANCODE_ESCAPE])
 			state_cycle = int(TITLE_TIMMER4);
 	} 
 
 	if (state_cycle > TITLE_TIMMER4) {
 		if (title_state == 0 &&
-		        ((k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE])
+		        ((k->keyboard[SDL_SCANCODE_SPACE] && !k->old_keyboard[SDL_SCANCODE_SPACE])
 		))
 		{
 			title_state = 1;
@@ -115,7 +115,7 @@ int F1SpiritApp::title_cycle(KEYBOARDSTATE *k)
 		} 
 
 		if (title_state == 0 &&
-		        k->keyboard[SDLK_ESCAPE] && !k->old_keyboard[SDLK_ESCAPE]) {
+		        k->keyboard[SDL_SCANCODE_ESCAPE] && !k->old_keyboard[SDL_SCANCODE_ESCAPE]) {
 			title_state = -1;
 		} 
 

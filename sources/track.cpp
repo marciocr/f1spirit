@@ -9,7 +9,7 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "F1Spirit.h"
 #include "stdlib.h"

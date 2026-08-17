@@ -24,7 +24,7 @@ class KEYBOARDSTATE
 		int k_size;       /* number of inputs */
 		unsigned char *old_keyboard;
 		unsigned char *keyboard;
-		List<SDL_keysym> keyevents;
+		List<int> keyevents; /* printable characters typed since the last cycle (from text input) */
 };
 
 #endif

@@ -9,8 +9,8 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
 #include "SDL_glutaux.h"
@@ -62,12 +62,12 @@ int F1SpiritApp::race_cycle(KEYBOARDSTATE *k)
 
 	} 
 
-	if (k->keyboard[SDLK_ESCAPE] && !k->old_keyboard[SDLK_ESCAPE] && race_state < 3) {
+	if (k->keyboard[SDL_SCANCODE_ESCAPE] && !k->old_keyboard[SDL_SCANCODE_ESCAPE] && race_state < 3) {
 		Sound_pause_music();
 		race_game->pauseSFX();
 
 		// pause rain sfx
-		Mix_HaltChannel(SFX_RAIN);
+		MIX_StopTrack(Sound_get_channel_track(SFX_RAIN), 0);
 
 		Sound_play(S_pause, 128);
 
@@ -92,7 +92,7 @@ int F1SpiritApp::race_cycle(KEYBOARDSTATE *k)
 			/* RACE FINISHED/QUIT: */
 			raceresult_state = 0;
 			raceresult_timmer = 0;
-			Mix_HaltChannel(SFX_RAIN);
+			MIX_StopTrack(Sound_get_channel_track(SFX_RAIN), 0);
 
 			{
 				int i;

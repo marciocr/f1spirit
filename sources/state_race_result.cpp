@@ -9,8 +9,8 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -204,8 +204,8 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 				raceresult_timmer = 0;
 			} 
 
-			if ((k->keyboard[SDLK_UP] && !k->old_keyboard[SDLK_UP]) ||
-			        (k->keyboard[SDLK_LEFT] && !k->old_keyboard[SDLK_LEFT])) {
+			if ((k->keyboard[SDL_SCANCODE_UP] && !k->old_keyboard[SDL_SCANCODE_UP]) ||
+			        (k->keyboard[SDL_SCANCODE_LEFT] && !k->old_keyboard[SDL_SCANCODE_LEFT])) {
 				raceresult_selected--;
 
 				if (raceresult_selected < 0)
@@ -214,8 +214,8 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 				Sound_play(S_menu_move, 128);
 			} 
 
-			if ((k->keyboard[SDLK_DOWN] && !k->old_keyboard[SDLK_DOWN]) ||
-			        (k->keyboard[SDLK_RIGHT] && !k->old_keyboard[SDLK_RIGHT])) {
+			if ((k->keyboard[SDL_SCANCODE_DOWN] && !k->old_keyboard[SDL_SCANCODE_DOWN]) ||
+			        (k->keyboard[SDL_SCANCODE_RIGHT] && !k->old_keyboard[SDL_SCANCODE_RIGHT])) {
 				raceresult_selected++;
 
 				if (!raceresult_replaysaved && raceresult_selected > 2)
@@ -232,8 +232,8 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 		case 1:
 			raceresult_timmer++;
 
-			if ((k->keyboard[SDLK_UP] && !k->old_keyboard[SDLK_UP]) ||
-			        (k->keyboard[SDLK_LEFT] && !k->old_keyboard[SDLK_LEFT])) {
+			if ((k->keyboard[SDL_SCANCODE_UP] && !k->old_keyboard[SDL_SCANCODE_UP]) ||
+			        (k->keyboard[SDL_SCANCODE_LEFT] && !k->old_keyboard[SDL_SCANCODE_LEFT])) {
 				raceresult_selected--;
 
 				if (raceresult_selected < 0)
@@ -244,8 +244,8 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 				Sound_play(S_menu_move, 128);
 			} 
 
-			if ((k->keyboard[SDLK_DOWN] && !k->old_keyboard[SDLK_DOWN]) ||
-			        (k->keyboard[SDLK_RIGHT] && !k->old_keyboard[SDLK_RIGHT])) {
+			if ((k->keyboard[SDL_SCANCODE_DOWN] && !k->old_keyboard[SDL_SCANCODE_DOWN]) ||
+			        (k->keyboard[SDL_SCANCODE_RIGHT] && !k->old_keyboard[SDL_SCANCODE_RIGHT])) {
 				raceresult_selected++;
 
 				if (!raceresult_replaysaved && raceresult_selected > 2)
@@ -259,8 +259,8 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 				Sound_play(S_menu_move, 128);
 			} 
 
-			if ((k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE]) ||
-			        (k->keyboard[SDLK_RETURN] && !k->old_keyboard[SDLK_RETURN])) {
+			if ((k->keyboard[SDL_SCANCODE_SPACE] && !k->old_keyboard[SDL_SCANCODE_SPACE]) ||
+			        (k->keyboard[SDL_SCANCODE_RETURN] && !k->old_keyboard[SDL_SCANCODE_RETURN])) {
 				Sound_play(S_menu_select, 128);
 				raceresult_timmer = 0;
 
@@ -282,7 +282,7 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 				} 
 			} 
 
-			if (k->keyboard[SDLK_ESCAPE] && !k->old_keyboard[SDLK_ESCAPE]) {
+			if (k->keyboard[SDL_SCANCODE_ESCAPE] && !k->old_keyboard[SDL_SCANCODE_ESCAPE]) {
 				Sound_play(S_menu_select, 128);
 				raceresult_state = 2;
 				raceresult_timmer = 0;
@@ -345,25 +345,25 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 		case 5: {
 				raceresult_timmer++;
 
-				List<SDL_keysym> l;
-				SDL_keysym *ks;
+				List<int> l;
+				int *ks;
 
 				l.Instance(k->keyevents);
 				l.Rewind();
 
 				while (l.Iterate(ks)) {
 #ifdef F1SPIRIT_DEBUG_MESSAGES
-					output_debug_message("User has pressed a key in the EDIT window: %i\n", ks->unicode);
+					output_debug_message("User has pressed a key in the EDIT window: %i\n", *ks);
 #endif
 
-					if ((ks->unicode & 0xFF00) == 0) {
+					{
 						int c;
 						int l = strlen((char *)raceresult_editing);
 
 						if (l > 28)
 							l = 28;
 
-						c = ks->unicode & 0xFF;
+						c = *ks & 0xFF;
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 
@@ -385,7 +385,7 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 					} 
 				} 
 
-				if (k->keyboard[SDLK_BACKSPACE] && !k->old_keyboard[SDLK_BACKSPACE]) {
+				if (k->keyboard[SDL_SCANCODE_BACKSPACE] && !k->old_keyboard[SDL_SCANCODE_BACKSPACE]) {
 					if (raceresult_editing[0] != 0)
 						raceresult_editing[strlen((char *)raceresult_editing) - 1] = 0;
 
@@ -394,7 +394,7 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 
 
 
-				if ((k->keyboard[SDLK_RETURN] && !k->old_keyboard[SDLK_RETURN])) {
+				if ((k->keyboard[SDL_SCANCODE_RETURN] && !k->old_keyboard[SDL_SCANCODE_RETURN])) {
 					bool replay_name_valid = true;
 					FILE *fp;
 					char tmp2[128];
@@ -422,7 +422,7 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 					} 
 				} 
 
-				if (k->keyboard[SDLK_ESCAPE] && !k->old_keyboard[SDLK_ESCAPE]) {
+				if (k->keyboard[SDL_SCANCODE_ESCAPE] && !k->old_keyboard[SDL_SCANCODE_ESCAPE]) {
 					Sound_play(S_menu_select, 128);
 					raceresult_state = 6;
 					raceresult_timmer = 0;

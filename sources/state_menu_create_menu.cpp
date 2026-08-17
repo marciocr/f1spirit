@@ -11,9 +11,9 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
-#include <SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
+#include <SDL3_image/SDL_image.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -413,12 +413,12 @@ void F1SpiritApp::menu_create_menu(void)
 				char tmp[256];
 				menu_title[1] = 0;
 				sprintf(tmp, "GEAR UP: %s\nGEAR DOWN: %s\nLEFT: %s\nRIGHT: %s\nACCEL: %s\nBRAKE: %s\nBACK\n",
-				        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 2, 0))),
-				        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 2, 1))),
-				        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 2, 2))),
-				        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 2, 3))),
-				        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 2, 4))),
-				        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 2, 5))));
+				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 0))),
+				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 1))),
+				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 2))),
+				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 3))),
+				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 4))),
+				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 5))));
 				//    strupr(tmp);
 				menu_options[1] = new char[strlen(tmp) + 1];
 				strcpy(menu_options[1], tmp);

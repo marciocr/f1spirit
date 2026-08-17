@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "List.h"
 #include "F1Spirit.h"
@@ -75,17 +75,17 @@ CPlayerInfo::CPlayerInfo(void)
 
 	zoom_speed = new int[1];
 
-	up[0] = SDLK_UP;
+	up[0] = SDL_SCANCODE_UP;
 
-	down[0] = SDLK_DOWN;
+	down[0] = SDL_SCANCODE_DOWN;
 
-	left[0] = SDLK_LEFT;
+	left[0] = SDL_SCANCODE_LEFT;
 
-	right[0] = SDLK_RIGHT;
+	right[0] = SDL_SCANCODE_RIGHT;
 
-	accelerate[0] = SDLK_SPACE;
+	accelerate[0] = SDL_SCANCODE_SPACE;
 
-	brake[0] = SDLK_m;
+	brake[0] = SDL_SCANCODE_M;
 	
 	joystick[0] = -1;
 
@@ -97,17 +97,17 @@ CPlayerInfo::CPlayerInfo(void)
 
 	add_player();
 
-	up[1] = SDLK_w;
+	up[1] = SDL_SCANCODE_W;
 
-	down[1] = SDLK_s;
+	down[1] = SDL_SCANCODE_S;
 
-	left[1] = SDLK_a;
+	left[1] = SDL_SCANCODE_A;
 
-	right[1] = SDLK_d;
+	right[1] = SDL_SCANCODE_D;
 
-	accelerate[1] = SDLK_LSHIFT;
+	accelerate[1] = SDL_SCANCODE_LSHIFT;
 
-	brake[1] = SDLK_LCTRL;
+	brake[1] = SDL_SCANCODE_LCTRL;
 
 	joystick[0] = -1;
 
@@ -174,17 +174,17 @@ CPlayerInfo::CPlayerInfo(char *n, char *password)
 
 	zoom_speed = new int[1];
 
-	up[0] = SDLK_UP;
+	up[0] = SDL_SCANCODE_UP;
 
-	down[0] = SDLK_DOWN;
+	down[0] = SDL_SCANCODE_DOWN;
 
-	left[0] = SDLK_LEFT;
+	left[0] = SDL_SCANCODE_LEFT;
 
-	right[0] = SDLK_RIGHT;
+	right[0] = SDL_SCANCODE_RIGHT;
 
-	accelerate[0] = SDLK_SPACE;
+	accelerate[0] = SDL_SCANCODE_SPACE;
 
-	brake[0] = SDLK_m;
+	brake[0] = SDL_SCANCODE_M;
 
 	joystick[0] = -1;
 
@@ -196,17 +196,17 @@ CPlayerInfo::CPlayerInfo(char *n, char *password)
 
 	add_player();
 
-	up[1] = SDLK_w;
+	up[1] = SDL_SCANCODE_W;
 
-	down[1] = SDLK_s;
+	down[1] = SDL_SCANCODE_S;
 
-	left[1] = SDLK_a;
+	left[1] = SDL_SCANCODE_A;
 
-	right[1] = SDLK_d;
+	right[1] = SDL_SCANCODE_D;
 
-	accelerate[1] = SDLK_LSHIFT;
+	accelerate[1] = SDL_SCANCODE_LSHIFT;
 
-	brake[1] = SDLK_LCTRL;
+	brake[1] = SDL_SCANCODE_LCTRL;
 
 	joystick[0] = -1;
 
@@ -790,17 +790,17 @@ void CPlayerInfo::add_player()
 		nzs[i] = zoom_speed[i];
 	} 
 
-	nup[nplayers] = SDLK_UNKNOWN;
+	nup[nplayers] = SDL_SCANCODE_UNKNOWN;
 
-	ndown[nplayers] = SDLK_UNKNOWN;
+	ndown[nplayers] = SDL_SCANCODE_UNKNOWN;
 
-	nleft[nplayers] = SDLK_UNKNOWN;
+	nleft[nplayers] = SDL_SCANCODE_UNKNOWN;
 
-	nright[nplayers] = SDLK_UNKNOWN;
+	nright[nplayers] = SDL_SCANCODE_UNKNOWN;
 
-	naccelerate[nplayers] = SDLK_UNKNOWN;
+	naccelerate[nplayers] = SDL_SCANCODE_UNKNOWN;
 
-	nbrake[nplayers] = SDLK_UNKNOWN;
+	nbrake[nplayers] = SDL_SCANCODE_UNKNOWN;
 
 	njoystick[nplayers] = -1;
 

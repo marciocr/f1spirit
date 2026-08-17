@@ -11,8 +11,8 @@
 #include "math.h"
 #include "string.h"
 
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 #include "auxiliar.h"
 #include "List.h"
@@ -95,7 +95,7 @@ SDL_Surface *load_maskedimage(char *imagefile, char *maskfile, char *path)
 	        mask == 0)
 		return NULL;
 
-	res = SDL_DisplayFormatAlpha(tmp);
+	res = SDL_ConvertSurface(tmp, SDL_GetPixelFormatForMasks(32, RMASK, GMASK, BMASK, AMASK));
 
 	/* Aplicar la m�scara: */
 	{
@@ -140,7 +140,7 @@ SDL_Surface *load_maskedimage(char *imagefile, char *maskfile, char *path)
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 {
 	SDL_Rect clip;
-	int bpp = surface->format->BytesPerPixel;
+	int bpp = SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel;
 
 	SDL_GetClipRect(surface, &clip);
 
@@ -189,7 +189,7 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 void maximumpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 {
 	SDL_Rect clip;
-	int bpp = surface->format->BytesPerPixel;
+	int bpp = SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel;
 	Uint32 r, g, b, r2, g2, b2;
 	Uint8 *p;
 
@@ -225,7 +225,7 @@ void maximumpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 
 Uint32 getpixel(SDL_Surface *surface, int x, int y)
 {
-	int bpp = surface->format->BytesPerPixel;
+	int bpp = SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel;
 
 	if (x < 0 || x >= surface->w ||
 	        y < 0 || y >= surface->h)
@@ -273,7 +273,7 @@ void surface_shifter(SDL_Surface *surface, int r_inc, int g_inc, int b_inc, int 
 		r = &r2;
 	} 
 
-	if (surface->format->BytesPerPixel != 4 ||
+	if (SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel != 4 ||
 	        (r_inc == 0 &&
 	         g_inc == 0 &&
 	         b_inc == 0 &&
@@ -359,7 +359,7 @@ void surface_fader(SDL_Surface *surface, float r_factor, float g_factor, float b
 		r = &r2;
 	} 
 
-	if (surface->format->BytesPerPixel != 4 ||
+	if (SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel != 4 ||
 	        (r_factor == 1.0 &&
 	         g_factor == 1.0 &&
 	         b_factor == 1.0 &&
@@ -422,7 +422,7 @@ void surface_fader_mask(SDL_Surface *surface, SDL_Surface *mask, float r_factor,
 		r = &r2;
 	} 
 
-	if (surface->format->BytesPerPixel != 4 ||
+	if (SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel != 4 ||
 	        (r_factor == 1.0 &&
 	         g_factor == 1.0 &&
 	         b_factor == 1.0 &&
@@ -443,12 +443,12 @@ void surface_fader_mask(SDL_Surface *surface, SDL_Surface *mask, float r_factor,
 		SDL_LockSurface(tmp);
 		pixels = (Uint8 *)(tmp->pixels);
 		sp = tmp->pitch;
-		sbpp = tmp->format->BytesPerPixel;
+		sbpp = SDL_GetPixelFormatDetails(tmp->format)->bytes_per_pixel;
 	} else {
 		SDL_LockSurface(surface);
 		pixels = (Uint8 *)(surface->pixels);
 		sp = surface->pitch;
-		sbpp = surface->format->BytesPerPixel;
+		sbpp = SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel;
 	} 
 
 	if ((mask->flags&SDL_HWSURFACE) != 0) {
@@ -457,12 +457,12 @@ void surface_fader_mask(SDL_Surface *surface, SDL_Surface *mask, float r_factor,
 		SDL_LockSurface(tmp2);
 		pixels_mask = (Uint8 *)(tmp2->pixels);
 		mp = tmp2->pitch;
-		mbpp = tmp2->format->BytesPerPixel;
+		mbpp = SDL_GetPixelFormatDetails(tmp2->format)->bytes_per_pixel;
 	} else {
 		SDL_LockSurface(mask);
 		pixels_mask = (Uint8 *)(mask->pixels);
 		mp = mask->pitch;
-		mbpp = mask->format->BytesPerPixel;
+		mbpp = SDL_GetPixelFormatDetails(mask->format)->bytes_per_pixel;
 	} 
 
 	for (y = r->y;y < r->y + r->h && y < surface->h;y++) {
@@ -511,7 +511,7 @@ void surface_shader(SDL_Surface *surface, float factor, int red, int green, int 
 
 	inv_ifactor = 256 - ifactor;
 
-	if (surface->format->BytesPerPixel != 4)
+	if (SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel != 4)
 		return ;
 
 	if ((surface->flags&SDL_HWSURFACE) != 0) {
@@ -587,7 +587,7 @@ void surface_bicolor(SDL_Surface *surface, float factor, int r1, int g1, int b1,
 
 	inv_ifactor = 256 - ifactor;
 
-	if (surface->format->BytesPerPixel != 4)
+	if (SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel != 4)
 		return ;
 
 	if ((surface->flags&SDL_HWSURFACE) != 0) {
@@ -874,7 +874,7 @@ void area_fill(SDL_Surface *sfc, int x, int y, Uint32 pixel)
 	Uint32 background;
 	Uint8 *p = (Uint8 *)sfc->pixels;
 
-	if (sfc->format->BytesPerPixel != 4)
+	if (SDL_GetPixelFormatDetails(sfc->format)->bytes_per_pixel != 4)
 		return ;
 
 	SDL_LockSurface(sfc);
@@ -935,7 +935,7 @@ void fast_area_fill(SDL_Surface *sfc, int x, int y, Uint32 pixel)
 	Uint8 *p = (Uint8 *)sfc->pixels;
 	Uint32 *p2, *p3, *p4;
 
-	if (sfc->format->BytesPerPixel != 4)
+	if (SDL_GetPixelFormatDetails(sfc->format)->bytes_per_pixel != 4)
 		return ;
 
 	SDL_LockSurface(sfc);
@@ -1476,8 +1476,8 @@ void surface_blit_alpha(SDL_Surface *orig, SDL_Rect *o_r, SDL_Surface *dest, SDL
 	int a1, a2;
 	int ap, app;
 
-	if (orig->format->BytesPerPixel != 4 ||
-	        dest->format->BytesPerPixel != 4)
+	if (SDL_GetPixelFormatDetails(orig->format)->bytes_per_pixel != 4 ||
+	        SDL_GetPixelFormatDetails(dest->format)->bytes_per_pixel != 4)
 		return ;
 
 	if (o_r != 0) {
@@ -1588,153 +1588,6 @@ void surface_blit_alpha(SDL_Surface *orig, SDL_Rect *o_r, SDL_Surface *dest, SDL
 
 	SDL_UnlockSurface(dest);
 } /* surface_blit_alpha */
-
-
-char get_key_ascii(int key)
-{
-	int i;
-	char keyascii[SDLK_LAST];
-
-	for (i = 0;i < SDLK_LAST;i++)
-		keyascii[i] = 0;
-
-	/* Fill in the blanks in keyascii */
-	keyascii[SDLK_BACKSPACE] = '\b';
-
-	keyascii[SDLK_TAB] = '\t';
-
-	keyascii[SDLK_RETURN] = '\n';
-
-	keyascii[SDLK_SPACE] = ' ';
-
-	keyascii[SDLK_EXCLAIM] = '!';
-
-	keyascii[SDLK_QUOTEDBL] = '\"';
-
-	keyascii[SDLK_HASH] = '#';
-
-	keyascii[SDLK_DOLLAR] = '$';
-
-	keyascii[SDLK_AMPERSAND] = '&';
-
-	keyascii[SDLK_QUOTE] = '\'';
-
-	keyascii[SDLK_LEFTPAREN] = '(';
-
-	keyascii[SDLK_RIGHTPAREN] = ')';
-
-	keyascii[SDLK_ASTERISK] = '*';
-
-	keyascii[SDLK_PLUS] = '+';
-
-	keyascii[SDLK_COMMA] = ',';
-
-	keyascii[SDLK_MINUS] = '-';
-
-	keyascii[SDLK_PERIOD] = '.';
-
-	keyascii[SDLK_SLASH] = '/';
-
-	keyascii[SDLK_0] = '0';
-
-	keyascii[SDLK_1] = '1';
-
-	keyascii[SDLK_2] = '2';
-
-	keyascii[SDLK_3] = '3';
-
-	keyascii[SDLK_4] = '4';
-
-	keyascii[SDLK_5] = '5';
-
-	keyascii[SDLK_6] = '6';
-
-	keyascii[SDLK_7] = '7';
-
-	keyascii[SDLK_8] = '8';
-
-	keyascii[SDLK_9] = '9';
-
-	keyascii[SDLK_COLON] = ':';
-
-	keyascii[SDLK_SEMICOLON] = ';';
-
-	keyascii[SDLK_LESS] = '<';
-
-	keyascii[SDLK_EQUALS] = '=';
-
-	keyascii[SDLK_GREATER] = '>';
-
-	keyascii[SDLK_QUESTION] = '?';
-
-	keyascii[SDLK_AT] = '@';
-
-	keyascii[SDLK_LEFTBRACKET] = '[';
-
-	keyascii[SDLK_BACKSLASH] = '\\';
-
-	keyascii[SDLK_RIGHTBRACKET] = ']';
-
-	keyascii[SDLK_CARET] = '^';
-
-	keyascii[SDLK_UNDERSCORE] = '_';
-
-	keyascii[SDLK_BACKQUOTE] = '`';
-
-	keyascii[SDLK_a] = 'a';
-
-	keyascii[SDLK_b] = 'b';
-
-	keyascii[SDLK_c] = 'c';
-
-	keyascii[SDLK_d] = 'd';
-
-	keyascii[SDLK_e] = 'e';
-
-	keyascii[SDLK_f] = 'f';
-
-	keyascii[SDLK_g] = 'g';
-
-	keyascii[SDLK_h] = 'h';
-
-	keyascii[SDLK_i] = 'i';
-
-	keyascii[SDLK_j] = 'j';
-
-	keyascii[SDLK_k] = 'k';
-
-	keyascii[SDLK_l] = 'l';
-
-	keyascii[SDLK_m] = 'm';
-
-	keyascii[SDLK_n] = 'n';
-
-	keyascii[SDLK_o] = 'o';
-
-	keyascii[SDLK_p] = 'p';
-
-	keyascii[SDLK_q] = 'q';
-
-	keyascii[SDLK_r] = 'r';
-
-	keyascii[SDLK_s] = 's';
-
-	keyascii[SDLK_t] = 't';
-
-	keyascii[SDLK_u] = 'u';
-
-	keyascii[SDLK_v] = 'v';
-
-	keyascii[SDLK_w] = 'w';
-
-	keyascii[SDLK_x] = 'x';
-
-	keyascii[SDLK_y] = 'y';
-
-	keyascii[SDLK_z] = 'z';
-
-	return keyascii[key];
-} /* get_key_ascii */
 
 
 bool save_float(FILE *fp, float f)

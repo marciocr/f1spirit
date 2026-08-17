@@ -13,9 +13,9 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -58,6 +58,7 @@ extern int g_stencil_bits;
 
 extern TRanrotBGenerator *rg;
 
+void carEngineSoundEffect_load(void);
 
 char *f1spirit_replay_version = "F1SAC9";
 /* commands: */
@@ -454,6 +455,7 @@ void F1SpiritGame::initialize_track(int ntrack)
 		S_car_hit4 = load_sfx(race_sfx_folder, race_default_sfx_folder, "car_hit4");
 		S_car_brake = load_sfx(race_sfx_folder, race_default_sfx_folder, "car_brake");
 		S_car_engine = load_sfx(race_sfx_folder, race_default_sfx_folder, "car_running");
+		carEngineSoundEffect_load();
 		S_semaphore_high = load_sfx(race_sfx_folder, race_default_sfx_folder, "semaphore_high");
 		S_semaphore_low = load_sfx(race_sfx_folder, race_default_sfx_folder, "semaphore_low");
 		S_race_finished = load_sfx(race_sfx_folder, race_default_sfx_folder, "car_finish");
@@ -2061,7 +2063,7 @@ bool F1SpiritGame::cycle(KEYBOARDSTATE *k)
 			} 
 
 			/* keyboard: */
-			for (i = 0;i < SDLK_LAST;i++) {
+			for (i = 0;i < SDL_SCANCODE_COUNT;i++) {
 				if (k->keyboard[i] != k->old_keyboard[i]) {
 					fputc(replay_cycle&0x0ff, replay_fp);
 					fputc(replay_cycle >> 8, replay_fp);
@@ -2851,7 +2853,14 @@ bool F1SpiritGame::cycle(KEYBOARDSTATE *k)
 			// play rain sfx
 
 			if (rain_channel == 0) {
-				rain_channel = Mix_FadeInChannel(SFX_RAIN, S_rain, -1, 2000);
+				MIX_Track *t = Sound_get_channel_track(SFX_RAIN);
+				SDL_PropertiesID props = SDL_CreateProperties();
+				SDL_SetNumberProperty(props, MIX_PROP_PLAY_FADE_IN_MILLISECONDS_NUMBER, 2000);
+				MIX_SetTrackAudio(t, S_rain);
+				MIX_SetTrackLoops(t, -1);
+				MIX_PlayTrack(t, props);
+				SDL_DestroyProperties(props);
+				rain_channel = SFX_RAIN;
 			}
 
 		} else {
@@ -2859,7 +2868,8 @@ bool F1SpiritGame::cycle(KEYBOARDSTATE *k)
 			// stop rain sfx
 
 			if (rain_channel != 0) {
-				Mix_FadeOutChannel(rain_channel, 1000);
+				MIX_Track *t = Sound_get_channel_track(SFX_RAIN);
+				MIX_StopTrack(t, MIX_TrackMSToFrames(t, 1000));
 				rain_channel = 0;
 			}
 		}

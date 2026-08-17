@@ -14,9 +14,9 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -59,6 +59,7 @@ extern bool show_console_msg;
 extern char console_msg[80];
 
 extern char *f1spirit_replay_version;
+extern SDL_Window *main_window;
 
 void gluPerspective( float fovY, float aspect, float zNear, float zFar )
 {
@@ -788,7 +789,7 @@ void F1SpiritApp::draw()
 	
 	glDisable(GL_BLEND);
 
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(main_window);
 }
 
 void F1SpiritApp::blank_hiscores(void)

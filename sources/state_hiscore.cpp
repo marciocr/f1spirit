@@ -9,8 +9,8 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -86,17 +86,17 @@ int F1SpiritApp::hiscore_cycle(KEYBOARDSTATE *k)
 		} 
 	} 
 
-	if (k->keyboard[SDLK_ESCAPE] && !k->old_keyboard[SDLK_ESCAPE] && hiscore_timmer == 0) {
+	if (k->keyboard[SDL_SCANCODE_ESCAPE] && !k->old_keyboard[SDL_SCANCODE_ESCAPE] && hiscore_timmer == 0) {
 		hiscore_action = 1;
 		hiscore_timmer = 1;
 	} 
 
-	if (k->keyboard[SDLK_RIGHT] && !k->old_keyboard[SDLK_RIGHT] && hiscore_timmer == 0) {
+	if (k->keyboard[SDL_SCANCODE_RIGHT] && !k->old_keyboard[SDL_SCANCODE_RIGHT] && hiscore_timmer == 0) {
 		hiscore_action = 2;
 		hiscore_timmer = 1;
 	} 
 
-	if (k->keyboard[SDLK_LEFT] && !k->old_keyboard[SDLK_LEFT] && hiscore_timmer == 0) {
+	if (k->keyboard[SDL_SCANCODE_LEFT] && !k->old_keyboard[SDL_SCANCODE_LEFT] && hiscore_timmer == 0) {
 		hiscore_action = 3;
 		hiscore_timmer = 1;
 	} 

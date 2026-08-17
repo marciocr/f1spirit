@@ -11,9 +11,9 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
-#include <SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
+#include <SDL3_image/SDL_image.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -180,11 +180,11 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 		} 
 	} 
 
-	if (k->keyboard[SDLK_m] && k->keyboard[SDLK_a] && k->keyboard[SDLK_x]) {
+	if (k->keyboard[SDL_SCANCODE_M] && k->keyboard[SDL_SCANCODE_A] && k->keyboard[SDL_SCANCODE_X]) {
 		cheat_max_point = true;
 	} 
 
-	if (k->keyboard[SDLK_e] && k->keyboard[SDLK_n] && k->keyboard[SDLK_d]) {
+	if (k->keyboard[SDL_SCANCODE_E] && k->keyboard[SDL_SCANCODE_N] && k->keyboard[SDL_SCANCODE_D]) {
 		endsequence_state = 0;
 		endsequence_timmer = 0;
 		endsequence_returnstate = APP_STATE_MENU;
@@ -661,22 +661,22 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 
 		if (!menu_redefining_key) {
 			if (menu_current_menu == 23 &&
-			        (k->keyboard[SDLK_DOWN] ||
-			         k->keyboard[SDLK_RIGHT] ||
-			         k->keyboard[SDLK_PAGEDOWN])) {
+			        (k->keyboard[SDL_SCANCODE_DOWN] ||
+			         k->keyboard[SDL_SCANCODE_RIGHT] ||
+			         k->keyboard[SDL_SCANCODE_PAGEDOWN])) {
 				menu_readme_move_y = 8;
 			} 
 
 			if (menu_current_menu == 23 &&
-			        (k->keyboard[SDLK_UP] ||
-			         k->keyboard[SDLK_LEFT] ||
-			         k->keyboard[SDLK_PAGEUP])) {
+			        (k->keyboard[SDL_SCANCODE_UP] ||
+			         k->keyboard[SDL_SCANCODE_LEFT] ||
+			         k->keyboard[SDL_SCANCODE_PAGEUP])) {
 				menu_readme_move_y = -8;
 			} 
 
-			if ((k->keyboard[SDLK_DOWN] && !k->old_keyboard[SDLK_DOWN]) ||
-			        (k->keyboard[SDLK_RIGHT] && !k->old_keyboard[SDLK_RIGHT])) {
-				if ((k->keyboard[SDLK_RIGHT] && !k->old_keyboard[SDLK_RIGHT]) &&
+			if ((k->keyboard[SDL_SCANCODE_DOWN] && !k->old_keyboard[SDL_SCANCODE_DOWN]) ||
+			        (k->keyboard[SDL_SCANCODE_RIGHT] && !k->old_keyboard[SDL_SCANCODE_RIGHT])) {
+				if ((k->keyboard[SDL_SCANCODE_RIGHT] && !k->old_keyboard[SDL_SCANCODE_RIGHT]) &&
 				        (menu_option_type[browsing][menu_selected[browsing]] == 15 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 16 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 38 ||
@@ -756,10 +756,10 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 				} 
 			} 
 
-			if ((k->keyboard[SDLK_UP] && !k->old_keyboard[SDLK_UP]) ||
-			        (k->keyboard[SDLK_LEFT] && !k->old_keyboard[SDLK_LEFT])) {
+			if ((k->keyboard[SDL_SCANCODE_UP] && !k->old_keyboard[SDL_SCANCODE_UP]) ||
+			        (k->keyboard[SDL_SCANCODE_LEFT] && !k->old_keyboard[SDL_SCANCODE_LEFT])) {
 
-				if ((k->keyboard[SDLK_LEFT] && !k->old_keyboard[SDLK_LEFT]) &&
+				if ((k->keyboard[SDL_SCANCODE_LEFT] && !k->old_keyboard[SDL_SCANCODE_LEFT]) &&
 				        (menu_option_type[browsing][menu_selected[browsing]] == 15 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 16 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 38 ||
@@ -839,7 +839,7 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 				} 
 			} 
 
-			if (k->keyboard[SDLK_ESCAPE] && !k->old_keyboard[SDLK_ESCAPE]) {
+			if (k->keyboard[SDL_SCANCODE_ESCAPE] && !k->old_keyboard[SDL_SCANCODE_ESCAPE]) {
 				menu_selected[browsing] = menu_noptions[browsing] - 1;
 				Sound_play(S_menu_select, MIX_MAX_VOLUME);
 				menu_state++;
@@ -852,7 +852,7 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 			        menu_option_type[browsing][menu_selected[browsing]] != 31 &&
 			        menu_option_type[browsing][menu_selected[browsing]] != 32 &&
 			        menu_option_type[browsing][menu_selected[browsing]] != 34 &&
-			        ((k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE])
+			        ((k->keyboard[SDL_SCANCODE_SPACE] && !k->old_keyboard[SDL_SCANCODE_SPACE])
 					))
 				{
 				if (menu_option_type[browsing][menu_selected[browsing]] != 19 &&
@@ -913,15 +913,10 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 				} 
 			} 
 
-			if (k->keyboard[SDLK_RETURN] && !k->old_keyboard[SDLK_RETURN]) {
+			if (k->keyboard[SDL_SCANCODE_RETURN] && !k->old_keyboard[SDL_SCANCODE_RETURN]) {
 				if (menu_option_type[browsing][menu_selected[browsing]] == 2 ||
 				        menu_option_type[browsing][menu_selected[browsing]] == 22 ||
-				        menu_option_type[browsing][menu_selected[browsing]] == 24 ||
-				        menu_option_type[browsing][menu_selected[browsing]] == 29 ||
-				        menu_option_type[browsing][menu_selected[browsing]] == 31 ||
-				        menu_option_type[browsing][menu_selected[browsing]] == 32 ||
-				        menu_option_type[browsing][menu_selected[browsing]] == 34 ||
-				        menu_option_type[browsing][menu_selected[browsing]] == 35) {
+				        menu_option_type[browsing][menu_selected[browsing]] == 24) {
 					if (menu_editing_valid) {
 						Sound_play(S_menu_select, MIX_MAX_VOLUME);
 						menu_state++;
@@ -938,39 +933,29 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 
 			if (menu_option_type[browsing][menu_selected[browsing]] == 2 ||
 			        menu_option_type[browsing][menu_selected[browsing]] == 22 ||
-			        menu_option_type[browsing][menu_selected[browsing]] == 24 ||
-			        menu_option_type[browsing][menu_selected[browsing]] == 29 ||
-			        menu_option_type[browsing][menu_selected[browsing]] == 31 ||
-			        menu_option_type[browsing][menu_selected[browsing]] == 32 ||
-			        menu_option_type[browsing][menu_selected[browsing]] == 34 ||
-			        menu_option_type[browsing][menu_selected[browsing]] == 35) {
+			        menu_option_type[browsing][menu_selected[browsing]] == 24) {
 				bool retest = false;
 
-				List<SDL_keysym> l;
-				SDL_keysym *ks;
+				List<int> l;
+				int *ks;
 
 				l.Instance(k->keyevents);
 				l.Rewind();
 
 				while (l.Iterate(ks)) {
 #ifdef F1SPIRIT_DEBUG_MESSAGES
-					output_debug_message("User has pressed a key in the EDIT window: %i\n", ks->unicode);
+					output_debug_message("User has pressed a key in the EDIT window: %i\n", *ks);
 #endif
 
-					if ((ks->unicode & 0xFF00) == 0) {
+					{
 						int c, first_return;
 						char tmp[100], tmp2[100];
 						int l = strlen((char *)menu_editing);
 
-						if (menu_option_type[browsing][menu_selected[browsing]] == 32) {
-							if (l > 24)
-								l = 24;
-						} else {
-							if (l > 16)
-								l = 16;
-						} 
+						if (l > 16)
+							l = 16;
 
-						c = ks->unicode & 0xFF;
+						c = *ks & 0xFF;
 
 						first_return = 0;
 
@@ -986,24 +971,11 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 
 #endif
 
-						/* Server and client names and IPs cannot contain spaces: */
-						if ((menu_option_type[browsing][menu_selected[browsing]] == 29 ||
-						        menu_option_type[browsing][menu_selected[browsing]] == 31 ||
-						        menu_option_type[browsing][menu_selected[browsing]] == 34 ||
-						        menu_option_type[browsing][menu_selected[browsing]] == 35)) {
-							if (c == 32)
-								c = 0;
-						} 
-
 						if (c >= 32 && c < 256) {
 							menu_editing[l + 1] = 0;
 							menu_editing[l] = c;
 
-							if (menu_option_type[browsing][menu_selected[browsing]] == 35) {
-								sprintf(tmp, "IP: %s_%s", menu_editing, tmp2);
-							} else {
-								sprintf(tmp, "%s_%s", menu_editing, tmp2);
-							} 
+							sprintf(tmp, "%s_%s", menu_editing, tmp2);
 
 							if (menu_option_type[browsing][menu_selected[browsing]] == 24) {
 								unsigned int i;
@@ -1034,7 +1006,7 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 					} 
 				} 
 
-				if (k->keyboard[SDLK_BACKSPACE] && !k->old_keyboard[SDLK_BACKSPACE]) {
+				if (k->keyboard[SDL_SCANCODE_BACKSPACE] && !k->old_keyboard[SDL_SCANCODE_BACKSPACE]) {
 					char tmp[100], tmp2[100];
 					int first_return;
 
@@ -1048,18 +1020,14 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 					if (menu_editing[0] != 0)
 						menu_editing[strlen((char *)menu_editing) - 1] = 0;
 
-					if (menu_option_type[browsing][menu_selected[browsing]] == 35) {
-						sprintf(tmp, "IP: %s_%s", menu_editing, tmp2);
-					} else {
-						sprintf(tmp, "%s_%s", menu_editing, tmp2);
-					} 
+					sprintf(tmp, "%s_%s", menu_editing, tmp2);
 
 					if (menu_option_type[browsing][menu_selected[browsing]] == 24) {
 						unsigned int i;
 
 						for (i = 0;i < strlen((char *)menu_editing);i++)
 							tmp[i] = '*';
-					} 
+					}
 
 					delete menu_options[browsing];
 
@@ -1072,7 +1040,7 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 					Sound_play(S_menu_move, MIX_MAX_VOLUME);
 
 					retest = true;
-				} 
+				}
 
 
 				if (retest) {
@@ -1200,11 +1168,7 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 						}
 					} 
 
-					if (menu_option_type[browsing][menu_selected[browsing]] == 24 ||
-					        menu_option_type[browsing][menu_selected[browsing]] == 29 ||
-					        menu_option_type[browsing][menu_selected[browsing]] == 31 ||
-					        menu_option_type[browsing][menu_selected[browsing]] == 32 ||
-					        menu_option_type[browsing][menu_selected[browsing]] == 34) {
+					if (menu_option_type[browsing][menu_selected[browsing]] == 24) {
 
 						menu_editing_valid = true;
 
@@ -1229,38 +1193,10 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 							if (!found)
 								menu_editing_valid = false;
 						}
-					} 
+					}
 
-					/* Check whether the entered text is a valid IP: */
-					if (menu_option_type[browsing][menu_selected[browsing]] == 35) {
-						int ip[4] = {0, 0, 0, 0};
-						int i, j;
-
-						i = 0;
-						j = 3;
-
-						while (menu_editing[i] != 0 && j >= 0) {
-							if (menu_editing[i] == '.')
-								j--;
-
-							if (menu_editing[i] >= '0' && menu_editing[i] <= '9')
-								ip[j] = ip[j] * 10 + int(menu_editing[i] - '0');
-
-							i++;
-						} 
-
-						if (menu_editing[i] == 0 && j == 0 &&
-						        ip[0] <= 255 &&
-						        ip[1] <= 255 &&
-						        ip[2] <= 255 &&
-						        ip[3] <= 255)
-							menu_editing_valid = true;
-						else
-							menu_editing_valid = false;
-					} 
-
-				} 
-			} 
+				}
+			}
 
 			/* Selecting TRACK: */
 			if (menu_current_menu == 9 || menu_current_menu == 10) {
@@ -1703,7 +1639,7 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 		} else {
 			int i;
 
-			for (i = 0;i < SDLK_LAST;i++) {
+			for (i = 0;i < SDL_SCANCODE_COUNT;i++) {
 				if (k->keyboard[i] && !k->old_keyboard[i]) {
 					current_player->set_key(menu_selected[0] - 2, menu_selected[1], i);
 					menu_redefining_key = false;

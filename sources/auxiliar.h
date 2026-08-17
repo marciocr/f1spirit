@@ -37,6 +37,71 @@
 
 #endif
 
+/* SDL3 compatibility shims.
+   SDL1.2's SDL_CreateRGBSurface/SDL_SetAlpha/SDL_MapRGB(A)/SDL_GetRGBA all changed
+   shape in SDL3 (surface flags are gone, per-surface alpha is now split into a blend
+   mode plus an alpha modulation value, and a surface's pixel format is an enum instead
+   of a struct pointer). These wrappers let every existing call site in this codebase
+   keep using the SDL1.2 call shape unchanged. */
+#define SDL_SWSURFACE 0
+#define SDL_SRCALPHA 0x00010000
+/* SDL3 has no hardware/software surface distinction any more; every surface we
+   create goes through the shim above, so this flag never actually gets set — the
+   define just keeps `surface->flags & SDL_HWSURFACE` checks compiling as "false". */
+#define SDL_HWSURFACE 0
+
+static inline SDL_Surface *F1S_CreateRGBSurface(Uint32 flags, int w, int h, int depth, Uint32 rmask, Uint32 gmask, Uint32 bmask, Uint32 amask)
+{
+	(void)flags;
+	return SDL_CreateSurface(w, h, SDL_GetPixelFormatForMasks(depth, rmask, gmask, bmask, amask));
+}
+#define SDL_CreateRGBSurface(flags, w, h, depth, rmask, gmask, bmask, amask) \
+	F1S_CreateRGBSurface(flags, w, h, depth, rmask, gmask, bmask, amask)
+
+static inline void F1S_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
+{
+	SDL_SetSurfaceBlendMode(surface, (flag & SDL_SRCALPHA) ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
+	SDL_SetSurfaceAlphaMod(surface, alpha);
+}
+#define SDL_SetAlpha(surface, flag, alpha) F1S_SetAlpha(surface, flag, alpha)
+
+static inline Uint32 F1S_MapRGB(SDL_PixelFormat format, Uint8 r, Uint8 g, Uint8 b)
+{
+	return SDL_MapRGB(SDL_GetPixelFormatDetails(format), 0, r, g, b);
+}
+#define SDL_MapRGB(format, r, g, b) F1S_MapRGB(format, r, g, b)
+
+static inline Uint32 F1S_MapRGBA(SDL_PixelFormat format, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+	return SDL_MapRGBA(SDL_GetPixelFormatDetails(format), 0, r, g, b, a);
+}
+#define SDL_MapRGBA(format, r, g, b, a) F1S_MapRGBA(format, r, g, b, a)
+
+static inline void F1S_GetRGBA(Uint32 pixel, SDL_PixelFormat format, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a)
+{
+	SDL_GetRGBA(pixel, SDL_GetPixelFormatDetails(format), 0, r, g, b, a);
+}
+#define SDL_GetRGBA(pixel, format, r, g, b, a) F1S_GetRGBA(pixel, format, r, g, b, a)
+
+#define SDL_GetClipRect(surface, rect) SDL_GetSurfaceClipRect(surface, rect)
+#define SDL_FillRect(dst, rect, color) SDL_FillSurfaceRect(dst, rect, color)
+#define SDL_FreeSurface(surface) SDL_DestroySurface(surface)
+/* SDL3_mixer's redesigned API dropped the old 0-128 volume scale in favor of
+   a float gain (1.0 = normal); Sound_play()/Sound_music_volume() in sound.cpp
+   still take the old 0-128 ints, so this keeps callers using the old MIX_MAX_VOLUME
+   constant (the "full volume" value) unchanged. */
+#define MIX_MAX_VOLUME 128
+
+/* SDL3 dropped SDL_NumJoysticks(); the closest equivalent is asking
+   SDL_GetJoysticks() for the array it allocates just to read its count back. */
+static inline int SDL_NumJoysticks(void)
+{
+	int count = 0;
+	SDL_JoystickID *ids = SDL_GetJoysticks(&count);
+	SDL_free(ids);
+	return count;
+}
+
 #ifndef _WIN32
 #ifndef HAVE_STRLWR
 
@@ -93,8 +158,6 @@ int get_text_width_bmp(unsigned char *text, SDL_Surface *font, int spacing);
 
 /* Blits orig into dest, and sets the alpha channel of all the blitted pixels to the right value: */
 void surface_blit_alpha(SDL_Surface *orig, SDL_Rect *o_r, SDL_Surface *dest, SDL_Rect *d_r);
-
-char get_key_ascii(int key);
 
 /* functions to write/read from files: */
 

@@ -9,9 +9,9 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
-#include <SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
+#include <SDL3_image/SDL_image.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -56,6 +56,9 @@ int COLOUR_DEPTH = 32;
 bool sound = true;
 bool fullscreen = false;
 
+SDL_Window *main_window = 0;
+SDL_GLContext gl_context = 0;
+
 TRanrotBGenerator *rg = 0;
 
 const int REDRAWING_PERIOD = 20;	// => 20 ms = 50 fps
@@ -74,12 +77,8 @@ char console_msg[80] = "";
 /*      AUXILIAR FUNCTION DEFINITION:       */
 
 
-SDL_Surface *initialization(int flags)
+bool initialization(Uint64 flags)
 {
-	const SDL_VideoInfo* info = 0;
-	int bpp = 0;
-	SDL_Surface *screen;
-
 	rg = new TRanrotBGenerator(0);
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
@@ -87,37 +86,31 @@ SDL_Surface *initialization(int flags)
 	output_debug_message("Initializing SDL\n");
 #endif
 
-	if (SDL_Init(SDL_INIT_VIDEO | (sound ? SDL_INIT_AUDIO : 0) | SDL_INIT_JOYSTICK | SDL_INIT_EVENTTHREAD) < 0) {
+	if (!SDL_Init(SDL_INIT_VIDEO | (sound ? SDL_INIT_AUDIO : 0) | SDL_INIT_JOYSTICK)) {
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 		output_debug_message("Video initialization failed: %s\n", SDL_GetError());
 #endif
 
-		return 0;
-	} 
+		return false;
+	}
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 	output_debug_message("SDL initialized\n");
 
 #endif
 
-	info = SDL_GetVideoInfo();
+	const SDL_DisplayMode *mode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
 
-	if (!info) {
+	if (!mode) {
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 		output_debug_message("Video query failed: %s\n", SDL_GetError());
 #endif
 
-		return 0;
-	} 
-
-	if (fullscreen) {
-		bpp = COLOUR_DEPTH;
-	} else {
-		bpp = info->vfmt->BitsPerPixel;
+		return false;
 	}
 
-	desktopW = info->current_w;
-	desktopH = info->current_h;
+	desktopW = mode->w;
+	desktopH = mode->h;
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 	output_debug_message("Setting OpenGL attributes\n");
 
@@ -139,15 +132,25 @@ SDL_Surface *initialization(int flags)
 	output_debug_message("Initializing video mode\n");
 
 #endif
-	flags = SDL_OPENGL | flags;
-	screen = SDL_SetVideoMode((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y, bpp, flags);
+	flags = SDL_WINDOW_OPENGL | flags;
+	main_window = SDL_CreateWindow(application_name, (fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y, flags);
 
-	if (screen == 0) {
+	if (main_window == 0) {
 #ifdef F1SPIRIT_DEBUG_MESSAGES
-		output_debug_message("Video mode set failed: %s\n", SDL_GetError());
+		output_debug_message("Window creation failed: %s\n", SDL_GetError());
 #endif
 
-		return 0;
+		return false;
+	}
+
+	gl_context = SDL_GL_CreateContext(main_window);
+
+	if (gl_context == 0) {
+#ifdef F1SPIRIT_DEBUG_MESSAGES
+		output_debug_message("GL context creation failed: %s\n", SDL_GetError());
+#endif
+
+		return false;
 	}
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
@@ -157,11 +160,11 @@ SDL_Surface *initialization(int flags)
 
 	calcMinMax((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y);
 
-	SDL_WM_SetCaption(application_name, 0);
+	SDL_SetWindowTitle(main_window, application_name);
 
-	SDL_WM_SetIcon(SDL_LoadBMP("graphics/f1sicon.bmp"), NULL);
+	SDL_SetWindowIcon(main_window, SDL_LoadBMP("graphics/f1sicon.bmp"));
 
-	SDL_ShowCursor(SDL_DISABLE);
+	SDL_HideCursor();
 
 	if (sound) {
 #ifdef F1SPIRIT_DEBUG_MESSAGES
@@ -177,7 +180,7 @@ SDL_Surface *initialization(int flags)
 
 	}
 
-	SDL_EnableUNICODE(1);
+	SDL_StartTextInput(main_window);
 
 	glGetIntegerv(GL_STENCIL_BITS, &g_stencil_bits);
 
@@ -187,7 +190,7 @@ SDL_Surface *initialization(int flags)
 #endif
 
 
-	return screen;
+	return true;
 } /* initialization */
 
 
@@ -205,8 +208,6 @@ void finalization()
 
 	if (sound)
 		Sound_release();
-		
-	IMG_Quit();
 
 	SDL_Quit();
 
@@ -228,11 +229,10 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 int main(int argc, char** argv) {
 #endif
 
-	SDL_Surface *screen_sfc;
 	F1SpiritApp *game;
 	KEYBOARDSTATE *k;
 
-	int time, act_time;
+	Uint64 time, act_time;
 	SDL_Event event;
 	bool quit = false;
 	bool need_to_redraw = true;
@@ -241,9 +241,7 @@ int main(int argc, char** argv) {
 
 	output_debug_message("Application started\n");
 #endif
-	screen_sfc = initialization((fullscreen ? SDL_FULLSCREEN : 0));
-
-	if (screen_sfc == 0)
+	if (!initialization((fullscreen ? SDL_WINDOW_FULLSCREEN : 0)))
 		return 0;
 
 	k = new KEYBOARDSTATE();
@@ -251,151 +249,137 @@ int main(int argc, char** argv) {
 	game = new F1SpiritApp();
 
 	time = init_time = SDL_GetTicks();
-	
-	IMG_Init(IMG_INIT_JPG|IMG_INIT_PNG);
 
 	while (!quit) {
 		while ( SDL_PollEvent( &event ) ) {
 			switch ( event.type ) {
 					/* Keyboard event */
 
-				case SDL_KEYDOWN:
+				case SDL_EVENT_KEY_DOWN:
 #ifdef __APPLE__
 
-					if (event.key.keysym.sym == SDLK_q) {
-						SDLMod modifiers;
+					if (event.key.scancode == SDL_SCANCODE_Q) {
+						SDL_Keymod modifiers;
 						modifiers = SDL_GetModState();
 
-						if ((modifiers &KMOD_META) != 0) {
+						if ((modifiers & SDL_KMOD_GUI) != 0) {
 							quit = true;
 						}
 					}
 
 #else
-					if (event.key.keysym.sym == SDLK_F12) {
+					if (event.key.scancode == SDL_SCANCODE_F12) {
 						quit = true;
-					} 
+					}
 
 #endif
-					if (event.key.keysym.sym == SDLK_F10) {
+					if (event.key.scancode == SDL_SCANCODE_F10) {
 						game->save_configuration("f1spirit.cfg");
 						game->load_configuration("f1spirit.cfg");
-					} 
+					}
 
 #ifdef _WIN32
-					if (event.key.keysym.sym == SDLK_F4) {
-						SDLMod modifiers;
+					if (event.key.scancode == SDL_SCANCODE_F4) {
+						SDL_Keymod modifiers;
 
 						modifiers = SDL_GetModState();
 
-						if ((modifiers&KMOD_ALT) != 0)
+						if ((modifiers & SDL_KMOD_ALT) != 0)
 							quit = true;
-					} 
+					}
 
 #endif
 #ifdef __APPLE__
-					if (event.key.keysym.sym == SDLK_f) {
-						SDLMod modifiers;
+					if (event.key.scancode == SDL_SCANCODE_F) {
+						SDL_Keymod modifiers;
 
 						modifiers = SDL_GetModState();
 
-						if ((modifiers&KMOD_META) != 0) {
+						if ((modifiers & SDL_KMOD_GUI) != 0) {
 							/* Toggle FULLSCREEN mode: */
 							if (fullscreen)
 								fullscreen = false;
 							else
 								fullscreen = true;
 
-							screen_sfc = SDL_SetVideoMode((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y, COLOUR_DEPTH, SDL_OPENGL | (fullscreen ? SDL_FULLSCREEN : 0));
+							SDL_SetWindowFullscreen(main_window, fullscreen);
 
 							calcMinMax((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y);
 
-							SDL_WM_SetCaption(application_name, 0);
-
-							SDL_ShowCursor(SDL_DISABLE);
+							SDL_HideCursor();
 
 							reload_textures++;
-
-							SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-
-							SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-
-							SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-
-							SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 						}
 					}
 
 #else
-					if (event.key.keysym.sym == SDLK_RETURN) {
-						SDLMod modifiers;
+					if (event.key.scancode == SDL_SCANCODE_RETURN) {
+						SDL_Keymod modifiers;
 
 						modifiers = SDL_GetModState();
 
-						if ((modifiers&KMOD_ALT) != 0) {
+						if ((modifiers & SDL_KMOD_ALT) != 0) {
 							/* Toggle FULLSCREEN mode: */
 							if (fullscreen)
 								fullscreen = false;
 							else
 								fullscreen = true;
-							screen_sfc = SDL_SetVideoMode((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y, COLOUR_DEPTH, SDL_OPENGL | (fullscreen ? SDL_FULLSCREEN : 0));
+
+							SDL_SetWindowFullscreen(main_window, fullscreen);
 
 							calcMinMax((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y);
 
-							SDL_WM_SetCaption(application_name, 0);
-
-							SDL_ShowCursor(SDL_DISABLE);
+							SDL_HideCursor();
 
 							reload_textures++;
-
-							SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-							SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-							SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-							SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-							SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-							SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 						}
 					}
 
 #endif
 
-					if (event.key.keysym.sym == SDLK_f) {
-						SDLMod modifiers;
+					if (event.key.scancode == SDL_SCANCODE_F) {
+						SDL_Keymod modifiers;
 
 						modifiers = SDL_GetModState();
 
-						if ((modifiers&KMOD_ALT) != 0) {
+						if ((modifiers & SDL_KMOD_ALT) != 0) {
 							/* toggle FPS mode: */
 							if (show_fps)
 								show_fps = false;
 							else
 								show_fps = true;
-						} 
-					} 
-
-					/* Keyboard event */
-					SDL_keysym *ks;
-
-					ks = new SDL_keysym();
-
-					*ks = event.key.keysym;
-
-					k->keyevents.Add(ks);
+						}
+					}
 
 					break;
 
-					/* SDL_QUIT event (window close) */
+					/* Printable text typed by the user (player name entry, etc): fed
+					   into the KEYBOARDSTATE text-edit queue, ASCII bytes only. */
 
-				case SDL_QUIT:
+				case SDL_EVENT_TEXT_INPUT: {
+						const char *text = event.text.text;
+						int i;
+
+						for (i = 0;text[i] != 0;i++) {
+							if ((unsigned char)text[i] < 0x80)
+								k->keyevents.Add(new int(text[i]));
+						}
+					}
+
+					break;
+
+					/* SDL_EVENT_QUIT (window close) */
+
+				case SDL_EVENT_QUIT:
 					quit = true;
 
 					break;
-			} 
-		} 
+			}
+		}
 
 		act_time = SDL_GetTicks();
 
-		if (act_time - time >= REDRAWING_PERIOD) 
+		if (act_time - time >= (Uint64)REDRAWING_PERIOD)
 		{
 			int max_frame_step = 10;
 			/*
@@ -411,7 +395,7 @@ int main(int argc, char** argv) {
 			do {
 				time += REDRAWING_PERIOD;
 
-				if ((act_time - time) > 10*REDRAWING_PERIOD)
+				if ((act_time - time) > (Uint64)(10*REDRAWING_PERIOD))
 					time = act_time;
 
 				/* cycle */
@@ -428,22 +412,22 @@ int main(int argc, char** argv) {
 
 				max_frame_step--;
 				min_frame--;
-			} while (((act_time - time >= REDRAWING_PERIOD) && (max_frame_step > 0)) || (min_frame > 0));
+			} while (((act_time - time >= (Uint64)REDRAWING_PERIOD) && (max_frame_step > 0)) || (min_frame > 0));
 
-		} 
+		}
 
 		/* Redraw */
 		if (need_to_redraw) {
 			game->draw();
 			need_to_redraw = false;
 			frames_per_sec_tmp += 1;
-		} 
+		}
 
-		if ((act_time - init_time) >= 1000) {
+		if ((act_time - (Uint64)init_time) >= 1000) {
 			frames_per_sec = frames_per_sec_tmp;
 			frames_per_sec_tmp = 0;
 			init_time = act_time;
-		} 
+		}
 
 		SDL_Delay(1);
 

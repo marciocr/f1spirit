@@ -7,9 +7,9 @@
 #include "string.h"
 
 #include "3DStuff.h"
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -44,26 +44,91 @@
 
 extern bool sound;
 
-void carEngineSoundEffect(int chan, void *stream, int len, void *udata)
+/* carEngineSoundEffect() needs to freely index into the *entire* engine
+   sample at an arbitrary, wrapping offset (to fake a pitch change by varying
+   the read speed). MIX_Audio doesn't expose its decoded samples directly, so
+   we keep our own persistent, fully-decoded copy alongside it, decoded once
+   from the same file Sound_create_sound() loaded for S_car_engine. */
+
+static float *engine_pcm = 0;
+static int engine_pcm_frames = 0;
+static int engine_pcm_channels = 0;
+
+void carEngineSoundEffect_load(void)
 {
-	CCar *car = (CCar *)udata;
+	MIX_AudioDecoder *dec;
+	SDL_AudioSpec spec;
+	int cap, got, total;
+
+	if (engine_pcm != 0) {
+		delete []engine_pcm;
+		engine_pcm = 0;
+	}
+
+	engine_pcm_frames = 0;
+	engine_pcm_channels = 0;
+
+	dec = MIX_CreateAudioDecoder(Sound_last_loaded_path(), 0);
+
+	if (dec == 0)
+		return;
+
+	MIX_GetAudioDecoderFormat(dec, &spec);
+
+	spec.format = SDL_AUDIO_F32;
+
+	cap = spec.freq * spec.channels * 20; /* 20 seconds worth, grown below if needed */
+	engine_pcm = new float[cap];
+	total = 0;
+
+	for (;;) {
+		if (total + spec.freq * spec.channels > cap) {
+			int newcap = cap * 2;
+			float *tmp = new float[newcap];
+			memcpy(tmp, engine_pcm, total * sizeof(float));
+			delete []engine_pcm;
+			engine_pcm = tmp;
+			cap = newcap;
+		}
+
+		got = MIX_DecodeAudio(dec, ((Uint8 *)engine_pcm) + total * sizeof(float), (cap - total) * (int)sizeof(float), &spec);
+
+		if (got <= 0)
+			break;
+
+		total += got / sizeof(float);
+	}
+
+	MIX_DestroyAudioDecoder(dec);
+
+	engine_pcm_channels = spec.channels;
+	engine_pcm_frames = (engine_pcm_channels > 0) ? total / engine_pcm_channels : 0;
+} /* carEngineSoundEffect_load */
+
+
+void carEngineSoundEffect(void *userdata, struct MIX_Track *track, const SDL_AudioSpec *spec, float *pcm, int samples)
+{
+	CCar *car = (CCar *)userdata;
 
 	float f;
-	unsigned int i, j, k;
-	Sint16 *ip, *ip2;
-	SOUNDT ces = car->getcarEngineSound();
+	int i, k;
+	int channels = spec->channels;
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
-		output_debug_message("carEngineSoundEffect of %i\n",chan);
+	output_debug_message("carEngineSoundEffect\n");
 #endif
 
+	if (engine_pcm == 0 || engine_pcm_frames <= 0) {
+		memset(pcm, 0, (size_t)samples * channels * sizeof(float));
+		return;
+	}
 
-	if (car->get_state()!=2) {
-		// state = 2 is when the car has crashed, thus we don't have to play the engine:
+	if (car->get_state() != 2) {
+		/* state = 2 is when the car has crashed, thus we don't have to play the engine: */
 
-		// "f" is the factor at which we are modifying the pitch of the engine sample
-		// if "f=2", the sound will be with twice the pitch of the original engine sample.
-		// the formula weare using is: f = ((rpm-2000)/2000)+0.5
+		/* "f" is the factor at which we are modifying the pitch of the engine sample
+		   if "f=2", the sound will be with twice the pitch of the original engine sample.
+		   the formula we are using is: f = ((rpm-2000)/2000)+0.5 */
 		f = (car->get_rpm() - 2000.0F) / 2000.0F;
 
 		if (f < 0)
@@ -71,38 +136,29 @@ void carEngineSoundEffect(int chan, void *stream, int len, void *udata)
 
 		f = 0.5F + f;
 
-		ip = (Sint16 *)stream;
-		ip2 = (Sint16 *)ces->abuf;
+		for (i = 0;i < samples;i++) {
+			k = car->carengine_position + (int)(i * f);
 
-		// Fill the S_carengine_working with a pitch modified version of the engine sample (S_carengine)
-		// Since the sample is stereo and 16bits, each sample is "4 bytes"
-		// "j" is the index that moves over the S_carengine_working sound, 
-		// and k = j*f is the index that moves over the S_carengine sound.
-#ifdef F1SPIRIT_DEBUG_MESSAGES
-		output_debug_message("carengine_position of channel %i is %i  (f: %g)\n",chan,car->carengine_position,f);
-#endif
-		for (i = 0, j = 0;i < len;i += 4, j++) {
-			k = car->carengine_position + (unsigned int)(j * f);
+			while (k >= engine_pcm_frames)
+				k -= engine_pcm_frames;
 
-			while (k*4 >= ces->alen)
-				k -= ces->alen / 4;
+			if (engine_pcm_channels >= 2) {
+				pcm[i*channels + 0] = engine_pcm[k * engine_pcm_channels + 0];
 
-			// Stereo mixing: 
-			ip[j*2] = ip2[k * 2];  // L 
+				if (channels >= 2)
+					pcm[i*channels + 1] = engine_pcm[k * engine_pcm_channels + 1];
+			} else {
+				int c;
 
-			ip[j*2 + 1] = ip2[k * 2 + 1]; // R 
-		} 
+				for (c = 0;c < channels;c++)
+					pcm[i*channels + c] = engine_pcm[k];
+			}
+		}
+
 		car->carengine_position = k;
 	} else {
-		// When the car has crashed, just set the buffer to all 0:
-
-		ip = (Sint16 *)stream;
-		for (i = 0, j = 0;i < len;i += 4, j++) {
-			ip[j*2]=0;
-			ip[j*2+1]=0;
-		}
+		/* When the car has crashed, just set the buffer to silence: */
+		memset(pcm, 0, (size_t)samples * channels * sizeof(float));
 		car->carengine_position = 0;
-	} // if
+	} /* if */
 }
-
-

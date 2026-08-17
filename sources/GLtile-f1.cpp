@@ -4,8 +4,8 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 #include "auxiliar.h"
 #include "GLTile.h"

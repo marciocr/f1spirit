@@ -9,8 +9,8 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -52,8 +52,8 @@ int F1SpiritApp::disclaimer_cycle(KEYBOARDSTATE *k)
 		return APP_STATE_KONAMI;
 	} 
 
-	if ((k->keyboard[SDLK_ESCAPE] && !k->old_keyboard[SDLK_ESCAPE]) ||
-	        (k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE])
+	if ((k->keyboard[SDL_SCANCODE_ESCAPE] && !k->old_keyboard[SDL_SCANCODE_ESCAPE]) ||
+	        (k->keyboard[SDL_SCANCODE_SPACE] && !k->old_keyboard[SDL_SCANCODE_SPACE])
 		)
 	{
 		m_skip_intro_screens = true;

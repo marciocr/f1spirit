@@ -74,7 +74,7 @@ class CPlayerInfo
 					break;
 			} /* switch */
 
-			return SDLK_UNKNOWN;
+			return SDL_SCANCODE_UNKNOWN;
 		} /* get_key */
 
 		void set_key(int player, int key, int k) {

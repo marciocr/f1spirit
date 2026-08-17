@@ -11,8 +11,8 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -135,7 +135,7 @@ int F1SpiritApp::replaymanager_cycle(KEYBOARDSTATE *k)
 				replaymanager_timmer++;
 
 				if (replaymanager_replays.Length() != 0) {
-					if (k->keyboard[SDLK_DOWN] && !k->old_keyboard[SDLK_DOWN]) {
+					if (k->keyboard[SDL_SCANCODE_DOWN] && !k->old_keyboard[SDL_SCANCODE_DOWN]) {
 						Sound_play(S_menu_move, 128);
 						replaymanager_timmer = 10;
 						replaymanager_replays.Next();
@@ -146,7 +146,7 @@ int F1SpiritApp::replaymanager_cycle(KEYBOARDSTATE *k)
 						delete_replay = true;
 					} 
 
-					if (k->keyboard[SDLK_UP] && !k->old_keyboard[SDLK_UP]) {
+					if (k->keyboard[SDL_SCANCODE_UP] && !k->old_keyboard[SDL_SCANCODE_UP]) {
 						Sound_play(S_menu_move, 128);
 						replaymanager_timmer = 10;
 
@@ -159,7 +159,7 @@ int F1SpiritApp::replaymanager_cycle(KEYBOARDSTATE *k)
 						delete_replay = true;
 					} 
 
-					if (k->keyboard[SDLK_PAGEDOWN] && !k->old_keyboard[SDLK_PAGEDOWN]) {
+					if (k->keyboard[SDL_SCANCODE_PAGEDOWN] && !k->old_keyboard[SDL_SCANCODE_PAGEDOWN]) {
 						int i;
 						Sound_play(S_menu_move, 128);
 						replaymanager_timmer = 10;
@@ -172,7 +172,7 @@ int F1SpiritApp::replaymanager_cycle(KEYBOARDSTATE *k)
 						delete_replay = true;
 					} 
 
-					if (k->keyboard[SDLK_PAGEUP] && !k->old_keyboard[SDLK_PAGEUP]) {
+					if (k->keyboard[SDL_SCANCODE_PAGEUP] && !k->old_keyboard[SDL_SCANCODE_PAGEUP]) {
 						int i;
 						Sound_play(S_menu_move, 128);
 						replaymanager_timmer = 10;
@@ -185,7 +185,7 @@ int F1SpiritApp::replaymanager_cycle(KEYBOARDSTATE *k)
 						delete_replay = true;
 					} 
 
-					if ((k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE])
+					if ((k->keyboard[SDL_SCANCODE_SPACE] && !k->old_keyboard[SDL_SCANCODE_SPACE])
 					)
 					{
 						if (replaymanager_replay_playing) {
@@ -223,7 +223,7 @@ int F1SpiritApp::replaymanager_cycle(KEYBOARDSTATE *k)
 						Sound_play(S_menu_select, 128);
 					} 
 
-					if (k->keyboard[SDLK_RETURN] && !k->old_keyboard[SDLK_RETURN]) {
+					if (k->keyboard[SDL_SCANCODE_RETURN] && !k->old_keyboard[SDL_SCANCODE_RETURN]) {
 						if (replaymanager_replay_desiredviewport == 0) {
 							replaymanager_replay_desiredviewport = 25;
 						} else {
@@ -234,7 +234,7 @@ int F1SpiritApp::replaymanager_cycle(KEYBOARDSTATE *k)
 
 				} 
 
-				if (k->keyboard[SDLK_ESCAPE] && !k->old_keyboard[SDLK_ESCAPE]) {
+				if (k->keyboard[SDL_SCANCODE_ESCAPE] && !k->old_keyboard[SDL_SCANCODE_ESCAPE]) {
 					replaymanager_state = 2;
 					replaymanager_timmer = 0;
 				} 

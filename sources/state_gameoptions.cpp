@@ -11,9 +11,9 @@
 
 #include "3DStuff.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
-#include <SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
+#include <SDL3_image/SDL_image.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -240,7 +240,7 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 						menu_fading_ctnt = 0;
 
 						// also stop music/sfx on restart
-						Mix_HaltChannel(SFX_RAIN);
+						MIX_StopTrack(Sound_get_channel_track(SFX_RAIN), 0);
 						Sound_pause_music();
 					}
 
@@ -376,12 +376,12 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 					char tmp[256];
 					menu_title[1] = 0;
 					sprintf(tmp, "GEAR UP: %s\nGEAR DOWN: %s\nLEFT: %s\nRIGHT: %s\nACCEL.: %s\nBRAKE: %s\nBACK\n",
-					        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 6, 0))),
-					        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 6, 1))),
-					        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 6, 2))),
-					        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 6, 3))),
-					        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 6, 4))),
-					        SDL_GetKeyName(SDLKey(current_player->get_key(menu_selected[0] - 6, 5))));
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 0))),
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 1))),
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 2))),
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 3))),
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 4))),
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 5))));
 					//    strupr(tmp);
 					menu_options[1] = new char[strlen(tmp) + 1];
 					strcpy(menu_options[1], tmp);
@@ -505,9 +505,9 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 			browsing = 1;
 
 		if (!menu_redefining_key) {
-			if ((k->keyboard[SDLK_DOWN] && !k->old_keyboard[SDLK_DOWN]) ||
-			        (k->keyboard[SDLK_RIGHT] && !k->old_keyboard[SDLK_RIGHT])) {
-				if ((k->keyboard[SDLK_RIGHT] && !k->old_keyboard[SDLK_RIGHT]) &&
+			if ((k->keyboard[SDL_SCANCODE_DOWN] && !k->old_keyboard[SDL_SCANCODE_DOWN]) ||
+			        (k->keyboard[SDL_SCANCODE_RIGHT] && !k->old_keyboard[SDL_SCANCODE_RIGHT])) {
+				if ((k->keyboard[SDL_SCANCODE_RIGHT] && !k->old_keyboard[SDL_SCANCODE_RIGHT]) &&
 				        (menu_option_type[browsing][menu_selected[browsing]] == 15 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 16)) {
 					if (menu_option_type[browsing][menu_selected[browsing]] == 15) {
@@ -575,10 +575,10 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 				} 
 			} 
 
-			if ((k->keyboard[SDLK_UP] && !k->old_keyboard[SDLK_UP]) ||
-			        (k->keyboard[SDLK_LEFT] && !k->old_keyboard[SDLK_LEFT])) {
+			if ((k->keyboard[SDL_SCANCODE_UP] && !k->old_keyboard[SDL_SCANCODE_UP]) ||
+			        (k->keyboard[SDL_SCANCODE_LEFT] && !k->old_keyboard[SDL_SCANCODE_LEFT])) {
 
-				if ((k->keyboard[SDLK_LEFT] && !k->old_keyboard[SDLK_LEFT]) &&
+				if ((k->keyboard[SDL_SCANCODE_LEFT] && !k->old_keyboard[SDL_SCANCODE_LEFT]) &&
 				        (menu_option_type[browsing][menu_selected[browsing]] == 15 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 16)) {
 					if (menu_option_type[browsing][menu_selected[browsing]] == 15) {
@@ -646,7 +646,7 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 				} 
 			} 
 
-			if (k->keyboard[SDLK_ESCAPE] && !k->old_keyboard[SDLK_ESCAPE]) {
+			if (k->keyboard[SDL_SCANCODE_ESCAPE] && !k->old_keyboard[SDL_SCANCODE_ESCAPE]) {
 				if (menu_current_menu == 5)
 					menu_selected[browsing] = 0;
 				else
@@ -658,7 +658,7 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 			} 
 
 			if (menu_option_type[browsing][menu_selected[browsing]] != 2 &&
-			        ((k->keyboard[SDLK_SPACE] && !k->old_keyboard[SDLK_SPACE])
+			        ((k->keyboard[SDL_SCANCODE_SPACE] && !k->old_keyboard[SDL_SCANCODE_SPACE])
 				))
 				{
 				if (menu_option_type[browsing][menu_selected[browsing]] != 19 &&
@@ -724,7 +724,7 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 			np = menu_selected[0] - 6;
 			PlayerCCar *v = race_game->player_cars[np];
 
-			for (i = 0;i < SDLK_LAST;i++) {
+			for (i = 0;i < SDL_SCANCODE_COUNT;i++) {
 				if (k->keyboard[i] && !k->old_keyboard[i]) {
 					current_player->set_key(np, menu_selected[1], i);
 

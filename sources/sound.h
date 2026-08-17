@@ -1,7 +1,7 @@
 #ifndef __BRAIN_SDL_SOUND
 #define __BRAIN_SDL_SOUND
 
-typedef Mix_Chunk * SOUNDT;
+typedef MIX_Audio * SOUNDT;
 
 bool Sound_initialization(void);
 int Sound_initialization(int nc, int nrc);
@@ -27,6 +27,18 @@ void Sound_music_volume(int volume);
 void Stop_playback(void);
 void Resume_playback(void);
 int Resume_playback(int nc, int nr);
+
+/* Path (with extension) that was actually opened by the last successful
+   Sound_create_sound() call. Used by CarEngineSound.cpp to independently
+   decode the engine sample into a raw, randomly-indexable PCM buffer for
+   its pitch-shifting effect (MIX_Audio itself does not expose raw samples). */
+char *Sound_last_loaded_path(void);
+
+/* The mixer track backing a given channel index, so callers that need
+   lower-level control (per-channel effect callbacks, explicit pause/stop)
+   can drive SDL3_mixer's MIX_Track API directly, the way the original code
+   drove SDL_mixer channels directly. */
+struct MIX_Track *Sound_get_channel_track(int channel);
 
 #endif
 
