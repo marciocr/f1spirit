@@ -1,0 +1,123 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  flatpak:
+    name: Flatpak bundle
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v7
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: f1spirit.flatpak
+          manifest-path: io.github.marciocr.F1Spirit.yml
+          cache: true
+
+  appimage-targz:
+    name: AppImage + tar.gz
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build build-essential pkg-config git libgl1-mesa-dev
+
+      # SDL3 isn't packaged by Ubuntu yet, so it's built from source, pinned to
+      # the same tags as the Flatpak manifest (io.github.marciocr.F1Spirit.yml)
+      # for consistency between the two distribution formats.
+      - name: Build SDL3 from source
+        run: |
+          PREFIX="$HOME/sdl3-prefix"
+          mkdir -p "$PREFIX"
+          build_cmake_dep() {
+            local url=$1 tag=$2 name=$3; shift 3
+            git clone --depth 1 --branch "$tag" "$url" "/tmp/$name"
+            cmake -S "/tmp/$name" -B "/tmp/$name/build" -GNinja \
+              -DCMAKE_INSTALL_PREFIX="$PREFIX" -DCMAKE_BUILD_TYPE=Release "$@"
+            cmake --build "/tmp/$name/build"
+            cmake --install "/tmp/$name/build"
+          }
+          build_cmake_dep https://github.com/libsdl-org/SDL.git release-3.4.14 SDL3 \
+            -DSDL_SHARED=ON -DSDL_STATIC=OFF -DSDL_TEST_LIBRARY=OFF
+          build_cmake_dep https://github.com/libsdl-org/SDL_image.git release-3.4.4 SDL3_image \
+            -DBUILD_SHARED_LIBS=ON -DSDLIMAGE_VENDORED=ON -DSDLIMAGE_BMP=ON -DSDLIMAGE_JPG=ON \
+            -DSDLIMAGE_AVIF=OFF -DSDLIMAGE_WEBP=OFF -DSDLIMAGE_TIF=OFF -DSDLIMAGE_PNG=ON \
+            -DCMAKE_PREFIX_PATH="$PREFIX"
+          build_cmake_dep https://github.com/libsdl-org/SDL_mixer.git release-3.2.4 SDL3_mixer \
+            -DBUILD_SHARED_LIBS=ON -DSDLMIXER_VENDORED=ON -DSDLMIXER_EXAMPLES=OFF \
+            -DSDLMIXER_TESTS=OFF -DSDLMIXER_MP3=OFF -DSDLMIXER_FLAC=OFF -DSDLMIXER_MOD=OFF \
+            -DSDLMIXER_MIDI=OFF -DSDLMIXER_OPUS=OFF -DSDLMIXER_WAVPACK=OFF \
+            -DCMAKE_PREFIX_PATH="$PREFIX"
+          build_cmake_dep https://github.com/g-truc/glm.git 1.0.3 glm \
+            -DGLM_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=OFF
+          echo "SDL3_PREFIX=$PREFIX" >> "$GITHUB_ENV"
+
+      - name: Build f1spirit
+        run: |
+          export PKG_CONFIG_PATH="$SDL3_PREFIX/lib/pkgconfig:$SDL3_PREFIX/lib64/pkgconfig"
+          export CPATH="$SDL3_PREFIX/include"
+          make
+
+      - name: Assemble AppDir
+        run: |
+          APPDIR="$PWD/AppDir"
+          mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/lib"
+          cp f1spirit "$APPDIR/usr/bin/f1spirit.bin"
+          cp -r demos graphics tracks sound readme.txt "$APPDIR/usr/bin/"
+          cp "$SDL3_PREFIX"/lib/libSDL3*.so* "$APPDIR/usr/lib/"
+          install -Dm644 build/linux/f1spirit.png "$APPDIR/usr/share/icons/hicolor/48x48/apps/io.github.marciocr.F1Spirit.png"
+          install -Dm644 io.github.marciocr.F1Spirit.desktop "$APPDIR/usr/share/applications/io.github.marciocr.F1Spirit.desktop"
+          cp build/linux/f1spirit.png "$APPDIR/io.github.marciocr.F1Spirit.png"
+          cp io.github.marciocr.F1Spirit.desktop "$APPDIR/io.github.marciocr.F1Spirit.desktop"
+          install -Dm755 packaging/AppRun "$APPDIR/AppRun"
+
+      - name: Build AppImage
+        run: |
+          wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+          ./appimagetool-x86_64.AppImage --appimage-extract-and-run AppDir f1spirit-x86_64.AppImage
+
+      - name: Build tar.gz
+        run: |
+          PKGDIR=f1spirit-linux-x86_64
+          mkdir -p "$PKGDIR"
+          cp f1spirit demos graphics tracks sound readme.txt "$PKGDIR"/ -r
+          cp -L "$SDL3_PREFIX"/lib/libSDL3*.so* "$PKGDIR"/
+          install -Dm755 packaging/f1spirit.sh "$PKGDIR/f1spirit.sh"
+          tar czf f1spirit-linux-x86_64.tar.gz "$PKGDIR"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: appimage-targz
+          path: |
+            f1spirit-x86_64.AppImage
+            f1spirit-linux-x86_64.tar.gz
+
+  release:
+    name: Publish release
+    needs: [flatpak, appimage-targz]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            dist/f1spirit.flatpak
+            dist/f1spirit-x86_64.AppImage
+            dist/f1spirit-linux-x86_64.tar.gz

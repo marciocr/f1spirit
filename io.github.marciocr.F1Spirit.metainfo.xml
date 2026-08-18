@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.marciocr.F1Spirit</id>
+  <name>F1 Spirit</name>
+  <summary>Unofficial remake of Konami's F1 Spirit</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0-or-later</project_license>
+  <description>
+    <p>
+      F1 Spirit Remake is an unofficial, not-for-profit remake of Konami's
+      F1 SPIRIT: The Way to Formula-1, originally released in 1987 for the
+      MSX home computer systems. Race through Formula 3, Formula 3000 and
+      Formula 1 seasons, upgrading your car between races.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.marciocr.F1Spirit.desktop</launchable>
+  <url type="homepage">https://github.com/marciocr/f1spirit</url>
+  <developer id="io.github.marciocr">
+    <name>Marcio Carneiro Rodrigues</name>
+  </developer>
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-cartoon">mild</content_attribute>
+  </content_rating>
+  <releases>
+    <release version="1.0.0" date="2026-08-18">
+      <description>
+        <p>SDL3 port of the F1 Spirit remake, packaged as a Flatpak.</p>
+      </description>
+    </release>
+  </releases>
+</component>

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=F1 Spirit
+Comment=Unofficial remake of Konami's F1 Spirit: The Way to Formula-1
+Exec=f1spirit
+Icon=io.github.marciocr.F1Spirit
+Categories=Game;ArcadeGame;
+Terminal=false
