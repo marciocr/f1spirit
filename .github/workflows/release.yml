@@ -29,7 +29,13 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build build-essential pkg-config git libgl1-mesa-dev
+          sudo apt-get install -y cmake ninja-build build-essential pkg-config git \
+            libasound2-dev libpulse-dev libaudio-dev libfribidi-dev libjack-dev \
+            libsndio-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev \
+            libxfixes-dev libxi-dev libxss-dev libxtst-dev libxkbcommon-dev \
+            libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev \
+            libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev \
+            libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev
 
       # SDL3 isn't packaged by Ubuntu yet, so it's built from source, pinned to
       # the same tags as the Flatpak manifest (io.github.marciocr.F1Spirit.yml)
@@ -74,9 +80,9 @@ jobs:
           cp f1spirit "$APPDIR/usr/bin/f1spirit.bin"
           cp -r demos graphics tracks sound readme.txt "$APPDIR/usr/bin/"
           cp "$SDL3_PREFIX"/lib/libSDL3*.so* "$APPDIR/usr/lib/"
-          install -Dm644 build/linux/f1spirit.png "$APPDIR/usr/share/icons/hicolor/48x48/apps/io.github.marciocr.F1Spirit.png"
+          install -Dm644 packaging/f1spirit-icon.png "$APPDIR/usr/share/icons/hicolor/50x50/apps/io.github.marciocr.F1Spirit.png"
           install -Dm644 io.github.marciocr.F1Spirit.desktop "$APPDIR/usr/share/applications/io.github.marciocr.F1Spirit.desktop"
-          cp build/linux/f1spirit.png "$APPDIR/io.github.marciocr.F1Spirit.png"
+          cp packaging/f1spirit-icon.png "$APPDIR/io.github.marciocr.F1Spirit.png"
           cp io.github.marciocr.F1Spirit.desktop "$APPDIR/io.github.marciocr.F1Spirit.desktop"
           install -Dm755 packaging/AppRun "$APPDIR/AppRun"
 

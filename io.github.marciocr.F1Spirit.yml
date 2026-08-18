@@ -82,7 +82,7 @@ modules:
       - install -Dm755 f1spirit-wrapper.sh /app/bin/f1spirit
       - install -Dm644 io.github.marciocr.F1Spirit.desktop /app/share/applications/io.github.marciocr.F1Spirit.desktop
       - install -Dm644 io.github.marciocr.F1Spirit.metainfo.xml /app/share/metainfo/io.github.marciocr.F1Spirit.metainfo.xml
-      - install -Dm644 build/linux/f1spirit.png /app/share/icons/hicolor/48x48/apps/io.github.marciocr.F1Spirit.png
+      - install -Dm644 packaging/f1spirit-icon.png /app/share/icons/hicolor/50x50/apps/io.github.marciocr.F1Spirit.png
     sources:
       - type: dir
         path: .
