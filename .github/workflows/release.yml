@@ -47,6 +47,7 @@ jobs:
           build_cmake_dep() {
             local url=$1 tag=$2 name=$3; shift 3
             git clone --depth 1 --branch "$tag" "$url" "/tmp/$name"
+            git -C "/tmp/$name" submodule update --init --depth 1
             cmake -S "/tmp/$name" -B "/tmp/$name/build" -GNinja \
               -DCMAKE_INSTALL_PREFIX="$PREFIX" -DCMAKE_BUILD_TYPE=Release "$@"
             cmake --build "/tmp/$name/build"
