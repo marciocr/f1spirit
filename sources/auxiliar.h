@@ -61,7 +61,14 @@ static inline SDL_Surface *F1S_CreateRGBSurface(Uint32 flags, int w, int h, int 
 static inline void F1S_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 {
 	SDL_SetSurfaceBlendMode(surface, (flag & SDL_SRCALPHA) ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
-	SDL_SetSurfaceAlphaMod(surface, alpha);
+	/* SDL1.2 only honored `alpha` when SDL_SRCALPHA was set in `flag`; unlike SDL1.2,
+	   SDL3's SDL_BlitSurface still applies the alpha modulation set here even under
+	   SDL_BLENDMODE_NONE, so forwarding it unconditionally was baking alpha=0 into
+	   every texture loaded via the many `SDL_SetAlpha(sfc, 0, 0)` call sites in this
+	   codebase (flag=0, alpha meant to be a don't-care) — every draw using GL_BLEND
+	   with a texture prepared this way was fully invisible. */
+	if (flag & SDL_SRCALPHA)
+		SDL_SetSurfaceAlphaMod(surface, alpha);
 }
 #define SDL_SetAlpha(surface, flag, alpha) F1S_SetAlpha(surface, flag, alpha)
 
