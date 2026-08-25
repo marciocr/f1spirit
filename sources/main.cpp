@@ -86,7 +86,7 @@ bool initialization(Uint64 flags)
 	output_debug_message("Initializing SDL\n");
 #endif
 
-	if (!SDL_Init(SDL_INIT_VIDEO | (sound ? SDL_INIT_AUDIO : 0) | SDL_INIT_JOYSTICK)) {
+	if (!SDL_Init(SDL_INIT_VIDEO | (sound ? SDL_INIT_AUDIO : 0) | SDL_INIT_GAMEPAD)) {
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 		output_debug_message("Video initialization failed: %s\n", SDL_GetError());
 #endif

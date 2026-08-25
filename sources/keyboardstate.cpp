@@ -18,19 +18,36 @@
 
 #define JOYSTICK_SIZE 12
 
+/* Fixed order for the 8 button slots each joystick gets in the keyboard array
+   (slots joystick_0_pos + i*JOYSTICK_SIZE + 4 .. +11). Using SDL_Gamepad's
+   standardized button IDs instead of raw per-device button indices means
+   "button 0"/"button 1" (accelerate/brake, see state_gameoptions.cpp) always
+   land on the same physical buttons (e.g. Xbox A/B, PlayStation Cross/Circle)
+   regardless of controller make. */
+static const SDL_GamepadButton joystick_gamepad_buttons[8] = {
+	SDL_GAMEPAD_BUTTON_SOUTH,
+	SDL_GAMEPAD_BUTTON_EAST,
+	SDL_GAMEPAD_BUTTON_WEST,
+	SDL_GAMEPAD_BUTTON_NORTH,
+	SDL_GAMEPAD_BUTTON_LEFT_SHOULDER,
+	SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER,
+	SDL_GAMEPAD_BUTTON_BACK,
+	SDL_GAMEPAD_BUTTON_START,
+};
+
 
 KEYBOARDSTATE::KEYBOARDSTATE(void)
 {
 	int i;
 	SDL_JoystickID *ids;
 
-	ids = SDL_GetJoysticks(&n_joysticks);
+	ids = SDL_GetGamepads(&n_joysticks);
 
 	if (n_joysticks > 0) {
-		joysticks = new SDL_Joystick * [n_joysticks];
+		joysticks = new SDL_Gamepad * [n_joysticks];
 
 		for (i = 0;i < n_joysticks;i++)
-			joysticks[i] = SDL_OpenJoystick(ids[i]);
+			joysticks[i] = SDL_OpenGamepad(ids[i]);
 	} else {
 		joysticks = 0;
 	}
@@ -64,7 +81,7 @@ KEYBOARDSTATE::~KEYBOARDSTATE(void)
 	old_keyboard = 0;
 
 	for (i = 0;i < n_joysticks;i++) {
-		SDL_CloseJoystick(joysticks[i]);
+		SDL_CloseGamepad(joysticks[i]);
 		joysticks[i] = 0;
 	}
 
@@ -87,7 +104,7 @@ void KEYBOARDSTATE::cycle(void)
 	}
 
 	if (n_joysticks > 0) {
-		SDL_UpdateJoysticks();
+		SDL_UpdateGamepads();
 
 		/* Update joysticks: */
 
@@ -95,7 +112,7 @@ void KEYBOARDSTATE::cycle(void)
 			for (j = 0;j < joystick_size;j++)
 				old_keyboard[joystick_0_pos + i*joystick_size + j] = keyboard[joystick_0_pos + i * joystick_size + j];
 
-			v = SDL_GetJoystickAxis(joysticks[i], 0);
+			v = SDL_GetGamepadAxis(joysticks[i], SDL_GAMEPAD_AXIS_LEFTX);
 
 			if (v < -16000)
 				keyboard[joystick_0_pos + i*joystick_size] = 1;
@@ -107,7 +124,7 @@ void KEYBOARDSTATE::cycle(void)
 			else
 				keyboard[joystick_0_pos + i*joystick_size + 1] = 0;
 
-			v = SDL_GetJoystickAxis(joysticks[i], 1);
+			v = SDL_GetGamepadAxis(joysticks[i], SDL_GAMEPAD_AXIS_LEFTY);
 
 			if (v < -16000)
 				keyboard[joystick_0_pos + i*joystick_size + 2] = 1;
@@ -119,8 +136,8 @@ void KEYBOARDSTATE::cycle(void)
 			else
 				keyboard[joystick_0_pos + i*joystick_size + 3] = 0;
 
-			for (j = 0;j < 8 && j < SDL_GetNumJoystickButtons(joysticks[i]);j++) {
-				keyboard[joystick_0_pos + i*joystick_size + 4 + j] = SDL_GetJoystickButton(joysticks[i], j) ? 1 : 0;
+			for (j = 0;j < 8;j++) {
+				keyboard[joystick_0_pos + i*joystick_size + 4 + j] = SDL_GetGamepadButton(joysticks[i], joystick_gamepad_buttons[j]) ? 1 : 0;
 			}
 		}
 	}

@@ -16,7 +16,7 @@ class KEYBOARDSTATE
 		bool load(FILE *fp);
 
 		int n_joysticks;
-		SDL_Joystick **joysticks;
+		SDL_Gamepad **joysticks;
 
 		int joystick_0_pos, joystick_size; /* start of the first joystick and joystick size */
 		int LVK_ID;
