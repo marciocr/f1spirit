@@ -37,6 +37,8 @@
 #include "F1SpiritTrackViewer.h"
 #include "F1SpiritApp.h"
 #include "F1Spirit-auxiliar.h"
+#include "video.h"
+#include "controls.h"
 #include "filehandling.h"
 
 #include "debug.h"
@@ -55,6 +57,52 @@ extern char *f1spirit_replay_version;
 
 #define MENU_CONSTANT 20
 #define TRACKPREVIEW_CONSTANT 25
+
+/* AUDIO/VIDEO settings adjusted in place with left/right (dir -1/+1) or
+   space (dir 0: step up, wrapping around). Returns false for other options. */
+bool menu_adjust_setting(int type, int dir)
+{
+	switch (type) {
+
+		case 15:  /* MUSIC VOLUME */
+		case 16: {  /* EFFECTS VOLUME */
+				int music = Sound_get_master_music_volume();
+				int sfx = Sound_get_master_sfx_volume();
+				int *v = (type == 15) ? &music : &sfx;
+
+				if (dir == 0)
+					*v = (*v >= 100) ? 0 : *v + 10;
+				else
+					*v += dir * 10;
+
+				Sound_set_master_volume(music, sfx);
+			}
+
+			return true;
+
+		case 40:  /* FULLSCREEN */
+			video_set_fullscreen(!fullscreen);
+			return true;
+
+		case 41: {  /* WINDOW SIZE */
+				int scale = window_scale + ((dir == 0) ? 1 : dir);
+				int max_scale = video_max_window_scale();
+
+				if (scale > max_scale)
+					scale = (dir == 0) ? 1 : max_scale;
+
+				if (scale < 1)
+					scale = 1;
+
+				video_set_window_scale(scale);
+			}
+
+			return true;
+	}
+
+	return false;
+}
+
 
 int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 {
@@ -323,17 +371,8 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 
 				case 8:  /* SET A JOYSTICK: */
 					menu_current_menu = menu_option_parameter[browsing][menu_selected[browsing]];
-					{
-						FILE *fp;
-						current_player->set_joystick(menu_selected[0] - 3, menu_selected[1] - 1);
-
-						fp = f1open(player_filename, "wb", USERDATA);
-
-						if (fp != 0) {
-							current_player->save(fp);
-							fclose(fp);
-						} 
-					}
+					Controls_set_device(menu_selected[0] - 2, menu_selected[1] - 1);
+					Controls_save();
 
 					break;
 
@@ -679,44 +718,11 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 				        (menu_option_type[browsing][menu_selected[browsing]] == 15 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 16 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 38 ||
-				         menu_option_type[browsing][menu_selected[browsing]] == 39)) {
-					if (menu_option_type[browsing][menu_selected[browsing]] == 15) {
-						int v = current_player->get_music_volume();
-
-						if (v >= MIX_MAX_VOLUME)
-							current_player->set_music_volume(0);
-
-						if (v == 96)
-							current_player->set_music_volume(MIX_MAX_VOLUME);
-
-						if (v == 64)
-							current_player->set_music_volume(96);
-
-						if (v == 32)
-							current_player->set_music_volume(64);
-
-						if (v == 0)
-							current_player->set_music_volume(32);
-					} 
-
-					if (menu_option_type[browsing][menu_selected[browsing]] == 16) {
-						int v = current_player->get_sfx_volume();
-
-						if (v >= MIX_MAX_VOLUME)
-							current_player->set_sfx_volume(0);
-
-						if (v == 96)
-							current_player->set_sfx_volume(MIX_MAX_VOLUME);
-
-						if (v == 64)
-							current_player->set_sfx_volume(96);
-
-						if (v == 32)
-							current_player->set_sfx_volume(64);
-
-						if (v == 0)
-							current_player->set_sfx_volume(32);
-					} 
+				         menu_option_type[browsing][menu_selected[browsing]] == 39 ||
+				         menu_option_type[browsing][menu_selected[browsing]] == 40 ||
+				         menu_option_type[browsing][menu_selected[browsing]] == 41)) {
+					if (menu_adjust_setting(menu_option_type[browsing][menu_selected[browsing]], 1))
+						save_configuration("f1spirit.cfg");
 
 					if (menu_option_type[browsing][menu_selected[browsing]] == 38) {
 						if (menu_multiplayer_n_enemycars < 500)
@@ -732,7 +738,7 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 
 					Sound_play(S_menu_move, MIX_MAX_VOLUME);
 
-					{
+					if (current_player != 0) {
 						FILE *fp;
 
 						fp = f1open(player_filename, "wb", USERDATA);
@@ -762,44 +768,11 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 				        (menu_option_type[browsing][menu_selected[browsing]] == 15 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 16 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 38 ||
-				         menu_option_type[browsing][menu_selected[browsing]] == 39)) {
-					if (menu_option_type[browsing][menu_selected[browsing]] == 15) {
-						int v = current_player->get_music_volume();
-
-						if (v >= MIX_MAX_VOLUME)
-							current_player->set_music_volume(96);
-
-						if (v == 96)
-							current_player->set_music_volume(64);
-
-						if (v == 64)
-							current_player->set_music_volume(32);
-
-						if (v == 32)
-							current_player->set_music_volume(0);
-
-						if (v == 0)
-							current_player->set_music_volume(MIX_MAX_VOLUME);
-					} 
-
-					if (menu_option_type[browsing][menu_selected[browsing]] == 16) {
-						int v = current_player->get_sfx_volume();
-
-						if (v == MIX_MAX_VOLUME)
-							current_player->set_sfx_volume(96);
-
-						if (v == 96)
-							current_player->set_sfx_volume(64);
-
-						if (v == 64)
-							current_player->set_sfx_volume(32);
-
-						if (v == 32)
-							current_player->set_sfx_volume(0);
-
-						if (v == 0)
-							current_player->set_sfx_volume(MIX_MAX_VOLUME);
-					} 
+				         menu_option_type[browsing][menu_selected[browsing]] == 39 ||
+				         menu_option_type[browsing][menu_selected[browsing]] == 40 ||
+				         menu_option_type[browsing][menu_selected[browsing]] == 41)) {
+					if (menu_adjust_setting(menu_option_type[browsing][menu_selected[browsing]], -1))
+						save_configuration("f1spirit.cfg");
 
 					if (menu_option_type[browsing][menu_selected[browsing]] == 38) {
 						if (menu_multiplayer_n_enemycars > 5)
@@ -815,7 +788,7 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 
 					Sound_play(S_menu_move, MIX_MAX_VOLUME);
 
-					{
+					if (current_player != 0) {
 						FILE *fp;
 
 						fp = f1open(player_filename, "wb", USERDATA);
@@ -865,44 +838,11 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 					if (menu_option_type[browsing][menu_selected[browsing]] == 15 ||
 					        menu_option_type[browsing][menu_selected[browsing]] == 16 ||
 					        menu_option_type[browsing][menu_selected[browsing]] == 19 ||
-					        menu_option_type[browsing][menu_selected[browsing]] == 20) {
-						if (menu_option_type[browsing][menu_selected[browsing]] == 15) {
-							int v = current_player->get_music_volume();
-
-							if (v >= MIX_MAX_VOLUME)
-								current_player->set_music_volume(0);
-
-							if (v == 96)
-								current_player->set_music_volume(MIX_MAX_VOLUME);
-
-							if (v == 64)
-								current_player->set_music_volume(96);
-
-							if (v == 32)
-								current_player->set_music_volume(64);
-
-							if (v == 0)
-								current_player->set_music_volume(32);
-						} 
-
-						if (menu_option_type[browsing][menu_selected[browsing]] == 16) {
-							int v = current_player->get_sfx_volume();
-
-							if (v == MIX_MAX_VOLUME)
-								current_player->set_sfx_volume(0);
-
-							if (v == 96)
-								current_player->set_sfx_volume(MIX_MAX_VOLUME);
-
-							if (v == 64)
-								current_player->set_sfx_volume(96);
-
-							if (v == 32)
-								current_player->set_sfx_volume(64);
-
-							if (v == 0)
-								current_player->set_sfx_volume(32);
-						} 
+					        menu_option_type[browsing][menu_selected[browsing]] == 20 ||
+					        menu_option_type[browsing][menu_selected[browsing]] == 40 ||
+					        menu_option_type[browsing][menu_selected[browsing]] == 41) {
+						if (menu_adjust_setting(menu_option_type[browsing][menu_selected[browsing]], 0))
+							save_configuration("f1spirit.cfg");
 
 						menu_force_rebuild_menu = true;
 					} else {
@@ -1640,20 +1580,11 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 
 			for (i = 0;i < SDL_SCANCODE_COUNT;i++) {
 				if (k->keyboard[i] && !k->old_keyboard[i]) {
-					current_player->set_key(menu_selected[0] - 2, menu_selected[1], i);
+					Controls_set_key(menu_selected[0] - 2, menu_selected[1], i);
+					Controls_save();
 					menu_redefining_key = false;
 					menu_force_rebuild_menu = true;
 					Sound_play(S_menu_select, MIX_MAX_VOLUME);
-					{
-						FILE *fp;
-
-						fp = f1open(player_filename, "wb", USERDATA);
-
-						if (fp != 0) {
-							current_player->save(fp);
-							fclose(fp);
-						} 
-					}
 				} 
 			} 
 		} 

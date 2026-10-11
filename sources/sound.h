@@ -23,6 +23,13 @@ void Sound_unpause_music(void);
 
 void Sound_music_volume(int volume);
 
+/* Master volumes in percent (0-100), set from the AUDIO menu. Sound_sfx_gain()
+   is the factor for tracks started directly through MIX_PlayTrack(). */
+void Sound_set_master_volume(int music, int sfx);
+int Sound_get_master_music_volume(void);
+int Sound_get_master_sfx_volume(void);
+float Sound_sfx_gain(void);
+
 /* These functions are AGRESIVE! (i.e. they actually STOP SDL_mixer and restart it) */
 void Stop_playback(void);
 void Resume_playback(void);

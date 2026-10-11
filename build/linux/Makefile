@@ -35,7 +35,8 @@ OBJS = \
 	$(SRC)/state_replaymanager.o	$(SRC)/state_title.o			\
 	$(SRC)/state_trackload.o		$(SRC)/track.o					\
 	$(SRC)/Vector.o					$(SRC)/weather.o				\
-	$(SRC)/filehandling.o			$(SRC)/CarEngineSound.o
+	$(SRC)/filehandling.o			$(SRC)/CarEngineSound.o	\
+	$(SRC)/controls.o
 
 CXX = g++
 # SDL3_mixer isn't packaged everywhere yet, so its pkg-config lookup is called

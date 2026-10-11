@@ -36,6 +36,11 @@
 #include "F1SpiritGame.h"
 #include "F1SpiritApp.h"
 #include "F1Spirit-auxiliar.h"
+#include "controls.h"
+
+/* Row of "PLAYER 1" in the pause menu: CONTINUE, QUIT, [RESTART,] a blank
+   line, MUSIC and EFFECTS come first (no RESTART in arcade mode). */
+#define PAUSE_MENU_PLAYER (menu_selected[0] - (arcade ? 5 : 6))
 #include "filehandling.h"
 
 #include "debug.h"
@@ -142,8 +147,10 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 						int i;
 						FILE *fp;
 						PlayerCCar *v;
-						current_player->set_joystick(menu_selected[0] - 7, menu_selected[1] - 1);
-						i = menu_selected[0] - 7;
+						current_player->set_joystick(PAUSE_MENU_PLAYER, menu_selected[1] - 1);
+						Controls_set_device(PAUSE_MENU_PLAYER, menu_selected[1] - 1);
+						Controls_save();
+						i = PAUSE_MENU_PLAYER;
 						v = race_game->player_cars[i];
 
 						if (menu_selected[1] - 1 == -1) {
@@ -288,7 +295,6 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 
 			case 24: {
 					int i, l, pos;
-					char *volumes[5] = {"NONE", "LOW ", "MED.", "HIGH", "MAX."};
 
 					l = strlen("PLAYER 000\n") * current_player->get_nplayers() + strlen("CONTINUE\nQUIT\nRESTART\n\nMUSIC VOL: MAX.\nSFX VOL: MAX.\nPLAYER 1\nPLAYER 2\nPLAYER 3\nPLAYER 4\n") + 1;
 					if (arcade)
@@ -297,13 +303,13 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 					pos = 0;
 					{
 						int v1 = 0, v2 = 0;
-						v1 = current_player->get_music_volume() / 32;
-						v2 = current_player->get_sfx_volume() / 32;
+						v1 = Sound_get_master_music_volume();
+						v2 = Sound_get_master_sfx_volume();
 
 						if (arcade)
-							sprintf(menu_options[0], "CONTINUE\nQUIT\n\nMUSIC VOL: %s\nSFX VOL: %s\n", volumes[v1], volumes[v2]);
+							sprintf(menu_options[0], "CONTINUE\nQUIT\n\nMUSIC: %i%%\nEFFECTS: %i%%\n", v1, v2);
 						else
-							sprintf(menu_options[0], "CONTINUE\nQUIT\nRESTART\n\nMUSIC VOL: %s\nSFX VOL: %s\n", volumes[v1], volumes[v2]);
+							sprintf(menu_options[0], "CONTINUE\nQUIT\nRESTART\n\nMUSIC: %i%%\nEFFECTS: %i%%\n", v1, v2);
 					}
 
 					pos = strlen(menu_options[0]);
@@ -328,7 +334,7 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 					if (arcade)
 						menu_noptions[0] = 5+1;
 					else
-						menu_noptions[0] = current_player->get_nplayers() + 7;
+						menu_noptions[0] = current_player->get_nplayers() + 6;
 
 					menu_option_type[0][0] = 13;
 					menu_option_type[0][1] = 0;
@@ -345,12 +351,9 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 						menu_option_type[0][3] = -1;
 						menu_option_type[0][4] = 15;
 						menu_option_type[0][5] = 16;
-						menu_option_type[0][6] = 11;
-						menu_option_parameter[0][6] = 22;
-
 						for (i = 0;i < current_player->get_nplayers();i++) {
-							menu_option_type[0][i + 7] = 11;
-							menu_option_parameter[0][i + 7] = 22;
+							menu_option_type[0][i + 6] = 11;
+							menu_option_parameter[0][i + 6] = 22;
 						} 
 					}
 
@@ -358,9 +361,12 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 				}
 
 				if (menu_current_menu == 22) {
+					char tmp[128], device[32];
+					KEYBOARDSTATE::device_name(current_player->get_joystick(PAUSE_MENU_PLAYER), device);
+					sprintf(tmp, "DEFINE KEYS\nDEVICE: %s\nBACK\n", device);
 					menu_title[1] = 0;
-					menu_options[1] = new char[strlen("KEYBOARD CFG.\nJOYSTICK/KEYS\nBACK\n") + 1];
-					strcpy(menu_options[1], "KEYBOARD CFG.\nJOYSTICK/KEYS\nBACK\n");
+					menu_options[1] = new char[strlen(tmp) + 1];
+					strcpy(menu_options[1], tmp);
 					menu_noptions[1] = 3;
 					menu_option_type[1][0] = 1;
 					menu_option_type[1][1] = 1;
@@ -375,12 +381,12 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 					char tmp[256];
 					menu_title[1] = 0;
 					sprintf(tmp, "GEAR UP: %s\nGEAR DOWN: %s\nLEFT: %s\nRIGHT: %s\nACCEL.: %s\nBRAKE: %s\nBACK\n",
-					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 0))),
-					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 1))),
-					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 2))),
-					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 3))),
-					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 4))),
-					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 6, 5))));
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(PAUSE_MENU_PLAYER, 0))),
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(PAUSE_MENU_PLAYER, 1))),
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(PAUSE_MENU_PLAYER, 2))),
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(PAUSE_MENU_PLAYER, 3))),
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(PAUSE_MENU_PLAYER, 4))),
+					        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(PAUSE_MENU_PLAYER, 5))));
 					//    strupr(tmp);
 					menu_options[1] = new char[strlen(tmp) + 1];
 					strcpy(menu_options[1], tmp);
@@ -398,50 +404,25 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 					menu_option_parameter[1][3] = 7;
 					menu_option_parameter[1][4] = 7;
 					menu_option_parameter[1][5] = 7;
-					menu_option_parameter[1][6] = 6;
+					menu_option_parameter[1][6] = 22;
 					menu_first_option[1] = 0;
 
-					if (current_player->get_joystick(menu_selected[0]) != -1) {
-						current_player->set_joystick(menu_selected[0], -1);
-						{
-							FILE *fp;
-
-							fp = f1open(player_filename, "wb", USERDATA);
-
-							if (fp != 0) {
-								current_player->save(fp);
-								fclose(fp);
-							} 
-						}
-					} 
 				} 
 
 				if (menu_current_menu == 8) {
-					int nj = SDL_NumJoysticks();
-					int i, pos;
+					int i;
 
-					menu_options[1] = new char[nj * strlen("JOYSTICK 000\n") + strlen("KEYBOARD\nBACK\n") + 1];
-					pos = 0;
-					sprintf(menu_options[1] + pos, "KEYBOARD\n");
-					pos = strlen(menu_options[1]);
+					menu_title[1] = 0;
+					KEYBOARDSTATE::create_device_menu(&menu_options[1], &menu_noptions[1]);
 
-					for (i = 0;i < nj;i++) {
-						sprintf(menu_options[1] + pos, "JOYSTICK %i\n", i);
-						pos = strlen(menu_options[1]);
-					} 
-
-					sprintf(menu_options[1] + pos, "BACK\n");
-
-					menu_noptions[1] = nj + 2;
-
-					for (i = 0;i < nj + 1;i++) {
+					for (i = 0;i < menu_noptions[1] - 1;i++) {
 						menu_option_type[1][i] = 8;
-						menu_option_parameter[1][i] = 6;
+						menu_option_parameter[1][i] = 22;
 					} 
 
-					menu_option_type[1][nj + 1] = 1;
+					menu_option_type[1][menu_noptions[1] - 1] = 1;
 
-					menu_option_parameter[1][nj + 1] = 6;
+					menu_option_parameter[1][menu_noptions[1] - 1] = 22;
 
 					menu_first_option[1] = 0;
 				} 
@@ -509,41 +490,8 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 				if ((k->keyboard[SDL_SCANCODE_RIGHT] && !k->old_keyboard[SDL_SCANCODE_RIGHT]) &&
 				        (menu_option_type[browsing][menu_selected[browsing]] == 15 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 16)) {
-					if (menu_option_type[browsing][menu_selected[browsing]] == 15) {
-						int v = current_player->get_music_volume();
-
-						if (v == 128)
-							current_player->set_music_volume(0);
-
-						if (v == 96)
-							current_player->set_music_volume(128);
-
-						if (v == 64)
-							current_player->set_music_volume(96);
-
-						if (v == 32)
-							current_player->set_music_volume(64);
-
-						if (v == 0)
-							current_player->set_music_volume(32);
-					} else {
-						int v = current_player->get_sfx_volume();
-
-						if (v == 128)
-							current_player->set_sfx_volume(0);
-
-						if (v == 96)
-							current_player->set_sfx_volume(128);
-
-						if (v == 64)
-							current_player->set_sfx_volume(96);
-
-						if (v == 32)
-							current_player->set_sfx_volume(64);
-
-						if (v == 0)
-							current_player->set_sfx_volume(32);
-					} 
+					if (menu_adjust_setting(menu_option_type[browsing][menu_selected[browsing]], 1))
+						save_configuration("f1spirit.cfg");
 
 					menu_force_rebuild_menu = true;
 
@@ -580,41 +528,8 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 				if ((k->keyboard[SDL_SCANCODE_LEFT] && !k->old_keyboard[SDL_SCANCODE_LEFT]) &&
 				        (menu_option_type[browsing][menu_selected[browsing]] == 15 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 16)) {
-					if (menu_option_type[browsing][menu_selected[browsing]] == 15) {
-						int v = current_player->get_music_volume();
-
-						if (v == 128)
-							current_player->set_music_volume(96);
-
-						if (v == 96)
-							current_player->set_music_volume(64);
-
-						if (v == 64)
-							current_player->set_music_volume(32);
-
-						if (v == 32)
-							current_player->set_music_volume(0);
-
-						if (v == 0)
-							current_player->set_music_volume(128);
-					} else {
-						int v = current_player->get_sfx_volume();
-
-						if (v == 128)
-							current_player->set_sfx_volume(96);
-
-						if (v == 96)
-							current_player->set_sfx_volume(64);
-
-						if (v == 64)
-							current_player->set_sfx_volume(32);
-
-						if (v == 32)
-							current_player->set_sfx_volume(0);
-
-						if (v == 0)
-							current_player->set_sfx_volume(128);
-					} 
+					if (menu_adjust_setting(menu_option_type[browsing][menu_selected[browsing]], -1))
+						save_configuration("f1spirit.cfg");
 
 					menu_force_rebuild_menu = true;
 
@@ -672,43 +587,8 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 					        menu_option_type[browsing][menu_selected[browsing]] == 16 ||
 					        menu_option_type[browsing][menu_selected[browsing]] == 19 ||
 					        menu_option_type[browsing][menu_selected[browsing]] == 20) {
-						if (menu_option_type[browsing][menu_selected[browsing]] == 15) {
-							int v = current_player->get_music_volume();
-
-							if (v == 128)
-								current_player->set_music_volume(0);
-
-							if (v == 96)
-								current_player->set_music_volume(128);
-
-							if (v == 64)
-								current_player->set_music_volume(96);
-
-							if (v == 32)
-								current_player->set_music_volume(64);
-
-							if (v == 0)
-								current_player->set_music_volume(32);
-						} 
-
-						if (menu_option_type[browsing][menu_selected[browsing]] == 16) {
-							int v = current_player->get_sfx_volume();
-
-							if (v == 128)
-								current_player->set_sfx_volume(0);
-
-							if (v == 96)
-								current_player->set_sfx_volume(128);
-
-							if (v == 64)
-								current_player->set_sfx_volume(96);
-
-							if (v == 32)
-								current_player->set_sfx_volume(64);
-
-							if (v == 0)
-								current_player->set_sfx_volume(32);
-						} 
+						if (menu_adjust_setting(menu_option_type[browsing][menu_selected[browsing]], 0))
+							save_configuration("f1spirit.cfg");
 
 						menu_force_rebuild_menu = true;
 					} else {
@@ -720,12 +600,14 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 
 		} else {
 			int i, np;
-			np = menu_selected[0] - 6;
+			np = PAUSE_MENU_PLAYER;
 			PlayerCCar *v = race_game->player_cars[np];
 
 			for (i = 0;i < SDL_SCANCODE_COUNT;i++) {
 				if (k->keyboard[i] && !k->old_keyboard[i]) {
 					current_player->set_key(np, menu_selected[1], i);
+					Controls_set_key(np, menu_selected[1], i);
+					Controls_save();
 
 					if (current_player->get_joystick(np) == -1) {
 						v->up = current_player->get_key(np, 0);

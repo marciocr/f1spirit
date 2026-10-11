@@ -37,6 +37,8 @@
 #include "F1SpiritTrackViewer.h"
 #include "F1SpiritApp.h"
 #include "F1Spirit-auxiliar.h"
+#include "video.h"
+#include "controls.h"
 #include "filehandling.h"
 
 #include "debug.h"
@@ -70,15 +72,17 @@ void F1SpiritApp::menu_create_menu(void)
 				if (nplayers > 0) {
 					menu_title[0] = new char[strlen("CHOOSE AN OPTION") + 1];
 					strcpy(menu_title[0], "CHOOSE AN OPTION");
-					menu_options[0] = new char[strlen("CONTINUE GAME\nNEW GAME\nPRACTICE MODE\nARCADE GAME\nTITLE SCREEN\n") + 1];
-					strcpy(menu_options[0], "CONTINUE GAME\nNEW GAME\nPRACTICE MODE\nARCADE GAME\nTITLE SCREEN\n");
-					menu_noptions[0] = 5;
+					menu_options[0] = new char[strlen("CONTINUE GAME\nNEW GAME\nPRACTICE MODE\nARCADE GAME\nOPTIONS\nTITLE SCREEN\n") + 1];
+					strcpy(menu_options[0], "CONTINUE GAME\nNEW GAME\nPRACTICE MODE\nARCADE GAME\nOPTIONS\nTITLE SCREEN\n");
+					menu_noptions[0] = 6;
 					menu_option_type[0][0] = 1;
 					menu_option_type[0][1] = 1;
 					menu_option_type[0][2] = 1;
 
 					menu_option_type[0][3] = 1;
-					menu_option_type[0][4] = 0;
+					menu_option_type[0][4] = 1;
+					menu_option_type[0][5] = 0;
+					menu_option_parameter[0][4] = 5;
 
 					menu_option_parameter[0][0] = 2;
 					menu_option_parameter[0][1] = 1;
@@ -88,14 +92,16 @@ void F1SpiritApp::menu_create_menu(void)
 				} else {
 					menu_title[0] = new char[strlen("CHOOSE AN OPTION") + 1];
 					strcpy(menu_title[0], "CHOOSE AN OPTION");
-					menu_options[0] = new char[strlen("NEW GAME\nPRACTICE MODE\nARCADE GAME\nTITLE SCREEN\n") + 1];
-					strcpy(menu_options[0], "NEW GAME\nPRACTICE MODE\nARCADE GAME\nTITLE SCREEN\n");
-					menu_noptions[0] = 4;
+					menu_options[0] = new char[strlen("NEW GAME\nPRACTICE MODE\nARCADE GAME\nOPTIONS\nTITLE SCREEN\n") + 1];
+					strcpy(menu_options[0], "NEW GAME\nPRACTICE MODE\nARCADE GAME\nOPTIONS\nTITLE SCREEN\n");
+					menu_noptions[0] = 5;
 					menu_option_type[0][0] = 1;
 					menu_option_type[0][1] = 1;
 
 					menu_option_type[0][2] = 1;
-					menu_option_type[0][3] = 0;
+					menu_option_type[0][3] = 1;
+					menu_option_type[0][4] = 0;
+					menu_option_parameter[0][3] = 5;
 
 					menu_option_parameter[0][0] = 1;
 					menu_option_parameter[0][1] = 4;
@@ -285,33 +291,29 @@ void F1SpiritApp::menu_create_menu(void)
 			{
 				menu_title[0] = new char[strlen(current_player->get_name()) + 1];
 				strcpy(menu_title[0], current_player->get_name());
-				menu_options[0] = new char[strlen("PLAY\nCONFIGURE\nHELP\nHIGH SCORES\nREPLAYS\nTITLE SCREEN\n") + 1];
-				strcpy(menu_options[0], "PLAY\nCONFIGURE\nHELP\nHIGH SCORES\nREPLAYS\nTITLE SCREEN\n");
-				menu_noptions[0] = 6;
+				menu_options[0] = new char[strlen("PLAY\nHELP\nHIGH SCORES\nREPLAYS\nTITLE SCREEN\n") + 1];
+				strcpy(menu_options[0], "PLAY\nHELP\nHIGH SCORES\nREPLAYS\nTITLE SCREEN\n");
+				menu_noptions[0] = 5;
 				menu_option_type[0][0] = 1;
 				menu_option_type[0][1] = 1;
-				menu_option_type[0][2] = 1;
+				menu_option_type[0][2] = 9;
 				menu_option_type[0][3] = 9;
-				menu_option_type[0][4] = 9;
-				menu_option_type[0][5] = 0;
+				menu_option_type[0][4] = 0;
 				menu_option_parameter[0][0] = 25;
-				menu_option_parameter[0][1] = 5;
-				menu_option_parameter[0][2] = 23;
-				menu_option_parameter[0][3] = 0;
-				menu_option_parameter[0][4] = 1;
+				menu_option_parameter[0][1] = 23;
+				menu_option_parameter[0][2] = 0;
+				menu_option_parameter[0][3] = 1;
 				menu_first_option[0] = 0;
 			}
 			else {
 				menu_title[0] = new char[strlen(current_player->get_name()) + 1];
 				strcpy(menu_title[0], current_player->get_name());
-				menu_options[0] = new char[strlen("PLAY\nCONFIGURE\nTITLE SCREEN\n") + 1];
-				strcpy(menu_options[0], "PLAY\nCONFIGURE\nTITLE SCREEN\n");
-				menu_noptions[0] = 3;
+				menu_options[0] = new char[strlen("PLAY\nTITLE SCREEN\n") + 1];
+				strcpy(menu_options[0], "PLAY\nTITLE SCREEN\n");
+				menu_noptions[0] = 2;
 				menu_option_type[0][0] = 1;
-				menu_option_type[0][1] = 1;
-				menu_option_type[0][2] = 0;
+				menu_option_type[0][1] = 0;
 				menu_option_parameter[0][0] = 12+210;	// 1 Player...
-				menu_option_parameter[0][1] = 5+210;
 				menu_first_option[0] = 0;
 				menu_selected_track = 0;	// start from the beggining
 
@@ -332,14 +334,6 @@ void F1SpiritApp::menu_create_menu(void)
 			menu_option_parameter[0][2] = 4;
 			menu_first_option[0] = 0;
 			break;
-		case 5+210:
-		case 6+210:
-		case 7+210:
-		case 8+210:
-		case 19+210:
-		case 20+210:
-		case 22+210:
-		case 24+210:
 		case 5:
 		case 6:
 		case 7:
@@ -348,133 +342,129 @@ void F1SpiritApp::menu_create_menu(void)
 		case 20:
 		case 22:
 		case 24:
-			arcade = (menu_current_menu>210)?1:0;
+		case 30:
+		case 31:
 			{
-				int i, l, pos;
-				char *volumes[5] = {"NONE", "LOW ", "MED ", "HIGH", "MAX "};
+				/* OPTIONS (from the first menu): AUDIO / VIDEO / CONTROLS P1-P4 /
+				   BACK. The player entries start at row 2, so the player being
+				   configured is menu_selected[0] - 2. */
+				int i;
+				char tmp[256];
 
-				l = strlen("PLAYER 000\n") * current_player->get_nplayers() + strlen("MUSIC VOL: MAX \nSFX VOL: MAX \nBACK\n") + 1;
-				menu_options[0] = new char[l];
-				pos = 0;
-				{
-					int v1 = 0, v2 = 0;
-					v1 = current_player->get_music_volume() / 32;
-					v2 = current_player->get_sfx_volume() / 32;
-					sprintf(menu_options[0], "MUSIC VOL: %s\nSFX VOL: %s\n", volumes[v1], volumes[v2]);
-				}
+				strcpy(tmp, "AUDIO\nVIDEO\n");
 
-				pos = strlen(menu_options[0]);
+				for (i = 0;i < CONTROLS_PLAYERS;i++)
+					sprintf(tmp + strlen(tmp), "CONTROLS P%i\n", i + 1);
 
-				for (i = 0;i < current_player->get_nplayers();i++) {
-					sprintf(menu_options[0] + pos, "PLAYER %i\n", i + 1);
-					pos = strlen(menu_options[0]);
-				} 
+				strcat(tmp, "BACK\n");
+				menu_options[0] = new char[strlen(tmp) + 1];
+				strcpy(menu_options[0], tmp);
 
-				sprintf(menu_options[0] + pos, "BACK\n");
+				menu_title[0] = new char[strlen("OPTIONS") + 1];
+				strcpy(menu_title[0], "OPTIONS");
 
-				menu_title[0] = new char[strlen(current_player->get_name()) + 1];
+				menu_noptions[0] = CONTROLS_PLAYERS + 3;
 
-				strcpy(menu_title[0], current_player->get_name());
+				menu_option_type[0][0] = 11;
+				menu_option_parameter[0][0] = 30;
 
-				menu_noptions[0] = current_player->get_nplayers() + 3;
+				menu_option_type[0][1] = 11;
+				menu_option_parameter[0][1] = 31;
 
-				menu_option_type[0][0] = 15;
-
-				menu_option_type[0][1] = 16;
-
-				for (i = 0;i < current_player->get_nplayers();i++) {
+				for (i = 0;i < CONTROLS_PLAYERS;i++) {
 					menu_option_type[0][i + 2] = 11;
-					menu_option_parameter[0][i + 2] = 22+arcade*210;
+					menu_option_parameter[0][i + 2] = 22;
 				}
 
-				menu_option_type[0][current_player->get_nplayers() + 2] = 1;
-				menu_option_parameter[0][current_player->get_nplayers() + 2] = 4+arcade*210;
+				menu_option_type[0][CONTROLS_PLAYERS + 2] = 1;
+				menu_option_parameter[0][CONTROLS_PLAYERS + 2] = 0;
 
-				if ((menu_current_menu == 5) || (menu_current_menu == 5+210))
+				if (menu_current_menu == 5)
 					menu_first_option[0] = 0;
 			}
 
-			if ((menu_current_menu == 22) || (menu_current_menu == 22+210)) {
+			if (menu_current_menu == 30) {
+				char tmp[128];
 				menu_title[1] = 0;
-				menu_options[1] = new char[strlen("KEYBOARD CFG\nJOYSTICK/KEYS\nBACK\n") + 1];
-				strcpy(menu_options[1], "KEYBOARD CFG\nJOYSTICK/KEYS\nBACK\n");
+				sprintf(tmp, "MUSIC: %i%%\nEFFECTS: %i%%\nBACK\n",
+				        Sound_get_master_music_volume(), Sound_get_master_sfx_volume());
+				menu_options[1] = new char[strlen(tmp) + 1];
+				strcpy(menu_options[1], tmp);
+				menu_noptions[1] = 3;
+				menu_option_type[1][0] = 15;
+				menu_option_type[1][1] = 16;
+				menu_option_type[1][2] = 1;
+				menu_option_parameter[1][2] = 5;
+				menu_first_option[1] = 0;
+			} 
+
+			if (menu_current_menu == 31) {
+				char tmp[128];
+				menu_title[1] = 0;
+				sprintf(tmp, "FULLSCREEN: %s\nWINDOW: %iX\nBACK\n",
+				        fullscreen ? "ON" : "OFF", window_scale);
+				menu_options[1] = new char[strlen(tmp) + 1];
+				strcpy(menu_options[1], tmp);
+				menu_noptions[1] = 3;
+				menu_option_type[1][0] = 40;
+				menu_option_type[1][1] = 41;
+				menu_option_type[1][2] = 1;
+				menu_option_parameter[1][2] = 5;
+				menu_first_option[1] = 0;
+			} 
+
+			if (menu_current_menu == 22) {
+				char tmp[128], device[32];
+				KEYBOARDSTATE::device_name(Controls_get_device(menu_selected[0] - 2), device);
+				menu_title[1] = 0;
+				sprintf(tmp, "DEFINE KEYS\nDEVICE: %s\nBACK\n", device);
+				menu_options[1] = new char[strlen(tmp) + 1];
+				strcpy(menu_options[1], tmp);
 				menu_noptions[1] = 3;
 				menu_option_type[1][0] = 1;
 				menu_option_type[1][1] = 1;
 				menu_option_type[1][2] = 1;
-				menu_option_parameter[1][0] = 7+arcade*210;
-				menu_option_parameter[1][1] = 8+arcade*210;
-				menu_option_parameter[1][2] = 5+arcade*210;
+				menu_option_parameter[1][0] = 7;
+				menu_option_parameter[1][1] = 8;
+				menu_option_parameter[1][2] = 5;
 				menu_first_option[1] = 0;
 			} 
-			if ((menu_current_menu == 7) || (menu_current_menu == 7+210))
-			{
+
+			if (menu_current_menu == 7) {
 				char tmp[256];
+				int i, p = menu_selected[0] - 2;
 				menu_title[1] = 0;
 				sprintf(tmp, "GEAR UP: %s\nGEAR DOWN: %s\nLEFT: %s\nRIGHT: %s\nACCEL: %s\nBRAKE: %s\nBACK\n",
-				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 0))),
-				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 1))),
-				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 2))),
-				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 3))),
-				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 4))),
-				        SDL_GetScancodeName(SDL_Scancode(current_player->get_key(menu_selected[0] - 2, 5))));
-				//    strupr(tmp);
+				        SDL_GetScancodeName(SDL_Scancode(Controls_get_key(p, 0))),
+				        SDL_GetScancodeName(SDL_Scancode(Controls_get_key(p, 1))),
+				        SDL_GetScancodeName(SDL_Scancode(Controls_get_key(p, 2))),
+				        SDL_GetScancodeName(SDL_Scancode(Controls_get_key(p, 3))),
+				        SDL_GetScancodeName(SDL_Scancode(Controls_get_key(p, 4))),
+				        SDL_GetScancodeName(SDL_Scancode(Controls_get_key(p, 5))));
 				menu_options[1] = new char[strlen(tmp) + 1];
 				strcpy(menu_options[1], tmp);
 				menu_noptions[1] = 7;
-				menu_option_type[1][0] = 7;
-				menu_option_type[1][1] = 7;
-				menu_option_type[1][2] = 7;
-				menu_option_type[1][3] = 7;
-				menu_option_type[1][4] = 7;
-				menu_option_type[1][5] = 7;
+
+				for (i = 0;i < 6;i++) {
+					menu_option_type[1][i] = 7;
+					menu_option_parameter[1][i] = 7;
+				}
+
 				menu_option_type[1][6] = 1;
-				menu_option_parameter[1][0] = 7+arcade*210;
-				menu_option_parameter[1][1] = 7+arcade*210;
-				menu_option_parameter[1][2] = 7+arcade*210;
-				menu_option_parameter[1][3] = 7+arcade*210;
-				menu_option_parameter[1][4] = 7+arcade*210;
-				menu_option_parameter[1][5] = 7+arcade*210;
-				menu_option_parameter[1][6] = 6+arcade*210;
+				menu_option_parameter[1][6] = 22;
 				menu_first_option[1] = 0;
-
-				if (current_player->get_joystick(menu_selected[0]) != -1) {
-					current_player->set_joystick(menu_selected[0], -1);
-					{
-						FILE *fp;
-
-						fp = f1open(player_filename, "wb", USERDATA);
-
-						if (fp != 0) {
-							current_player->save(fp);
-							fclose(fp);
-						} 
-					}
-				} 
 			} 
-			if ((menu_current_menu == 8) || (menu_current_menu == 8+210))
-			{
-				int nj = SDL_NumJoysticks();
-				int i, pos;
 
-				menu_options[1] = new char[nj * strlen("JOYSTICK 000\n") + strlen("KEYBOARD\nBACK\n") + 1];
-				pos = 0;
-				sprintf(menu_options[1] + pos, "KEYBOARD\n");
-				pos = strlen(menu_options[1]);
+			if (menu_current_menu == 8) {
+				menu_title[1] = 0;
+				KEYBOARDSTATE::create_device_menu(&menu_options[1], &menu_noptions[1]);
 
-				for (i = 0;i < nj;i++) {
-					sprintf(menu_options[1] + pos, "JOYSTICK %i\n", i);
-					pos = strlen(menu_options[1]);
-				} 
-
-				sprintf(menu_options[1] + pos, "BACK\n");
-				menu_noptions[1] = nj + 2;
-				for (i = 0;i < nj + 1;i++) {
+				for (int i = 0;i < menu_noptions[1] - 1;i++) {
 					menu_option_type[1][i] = 8;
-					menu_option_parameter[1][i] = 6+arcade*210;
+					menu_option_parameter[1][i] = 22;
 				} 
-				menu_option_type[1][nj + 1] = 1;
-				menu_option_parameter[1][nj + 1] = 6+arcade*210;
+				menu_option_type[1][menu_noptions[1] - 1] = 1;
+				menu_option_parameter[1][menu_noptions[1] - 1] = 22;
 				menu_first_option[1] = 0;
 			} 
 			break;
@@ -1199,6 +1189,10 @@ void F1SpiritApp::menu_create_menu(void)
 
 	if (!menu_redefining_key && !menu_force_rebuild_menu)
 		menu_selected[1] = 0;
+
+	/* Device list: start on the device the player currently uses. */
+	if (menu_current_menu == 8 && !menu_force_rebuild_menu)
+		menu_selected[1] = Controls_get_device(menu_selected[0] - 2) + 1;
 
 	if (!menu_redefining_key && !menu_force_rebuild_menu)
 		menu_selected_timmer[1] = 0;

@@ -39,6 +39,8 @@
 #include "F1SpiritGame.h"
 #include "F1SpiritTrackViewer.h"
 #include "F1SpiritApp.h"
+#include "video.h"
+#include "controls.h"
 #include "F1Spirit-auxiliar.h"
 #include "filehandling.h"
 #include "SDL_glutaux.h"
@@ -138,6 +140,9 @@ F1SpiritApp::F1SpiritApp()
 	glesSpecial(false);
 
 	load_configuration("f1spirit.cfg");
+
+	if (!Controls_load())
+		Controls_save();
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 
@@ -553,6 +558,10 @@ F1SpiritApp::~F1SpiritApp()
 bool F1SpiritApp::cycle(KEYBOARDSTATE *k)
 {
 	int old_state = state;
+
+	/* Gamepads steer cars during a race; everywhere else they work the menus.
+	   (Takes effect from the next k->cycle().) */
+	KEYBOARDSTATE::gamepad_menu_navigation = (state != APP_STATE_RACE);
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 
@@ -1083,13 +1092,20 @@ bool F1SpiritApp::load_configuration(char *file)
 	fp = f1open(file, "r", USERDATA);
 
 	if (fp != 0) {
-		int tmp;
+		int tmp, music, sfx;
 
 		if (1 == fscanf(fp, "%i", &tmp)) {
 			if (tmp == 0)
 				fullscreen = false;
 			else
 				fullscreen = true;
+
+			/* Added later; files from older versions just end here: */
+			if (1 == fscanf(fp, "%i", &tmp) && tmp >= 1)
+				window_scale = tmp;
+
+			if (2 == fscanf(fp, "%i %i", &music, &sfx))
+				Sound_set_master_volume(music, sfx);
 		} else {
 			error = true;
 		} 
@@ -1114,6 +1130,8 @@ bool F1SpiritApp::save_configuration(char *file)
 
 	if (fp != 0) {
 		fprintf(fp, "%i\n", (fullscreen ? 1 : 0));
+		fprintf(fp, "%i\n", window_scale);
+		fprintf(fp, "%i %i\n", Sound_get_master_music_volume(), Sound_get_master_sfx_volume());
 		fclose(fp);
 		return true;
 	} 

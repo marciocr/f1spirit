@@ -36,6 +36,7 @@
 #include "GameParameters.h"
 #include "ReplayInfo.h"
 #include "F1SpiritGame.h"
+#include "controls.h"
 #include "F1SpiritApp.h"
 #include "F1Spirit-auxiliar.h"
 #include "randomc.h"
@@ -844,6 +845,7 @@ F1SpiritGame::F1SpiritGame(CPlayerInfo *player, int ntrack, int nplayers, int ma
 
 	font = f;
 	current_player = player;
+	Controls_apply(player);
 
 	play_music = true;
 
@@ -2857,6 +2859,7 @@ bool F1SpiritGame::cycle(KEYBOARDSTATE *k)
 				SDL_SetNumberProperty(props, MIX_PROP_PLAY_FADE_IN_MILLISECONDS_NUMBER, 2000);
 				MIX_SetTrackAudio(t, S_rain);
 				MIX_SetTrackLoops(t, -1);
+				MIX_SetTrackGain(t, Sound_sfx_gain());
 				MIX_PlayTrack(t, props);
 				SDL_DestroyProperties(props);
 				rain_channel = SFX_RAIN;

@@ -13,4 +13,7 @@ void free_auxiliar_menu_surfaces(void);
 SOUNDT load_sfx(char *dir, char *default_dir, char *sample);
 
 
+/* AUDIO/VIDEO option adjusted in place (state_menu.cpp), also used by the pause menu. */
+bool menu_adjust_setting(int type, int dir);
+
 #endif
