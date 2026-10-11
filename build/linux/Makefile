@@ -9,7 +9,7 @@ BINDIR = $(PREFIX)/share/games/$(EXE)
 ICNDIR = $(PREFIX)/share/pixmaps
 APPDIR = $(PREFIX)/share/applications
 
-DATA = demos graphics tracks sound readme.txt
+DATA = demos graphics shaders tracks sound readme.txt
 ICON = f1spirit.png
 DESKTOP = f1spirit.desktop
 
@@ -35,15 +35,16 @@ OBJS = \
 	$(SRC)/state_replaymanager.o	$(SRC)/state_title.o			\
 	$(SRC)/state_trackload.o		$(SRC)/track.o					\
 	$(SRC)/Vector.o					$(SRC)/weather.o				\
-	$(SRC)/filehandling.o			$(SRC)/CarEngineSound.o
+	$(SRC)/filehandling.o			$(SRC)/CarEngineSound.o	\
+	$(SRC)/controls.o				$(SRC)/postfx.o
 
 CXX = g++
 # SDL3_mixer isn't packaged everywhere yet, so its pkg-config lookup is called
 # separately (with stderr silenced) from the others: a single pkg-config
 # invocation covering several modules fails *entirely*, for every module,
 # the moment just one of them isn't installed.
-CFLAGS = -g3 -O3 -Wno-write-strings `pkg-config --cflags sdl3 sdl3-image` `pkg-config --cflags sdl3-mixer 2>/dev/null`
-LDFLAGS = `pkg-config --libs sdl3 sdl3-image` `pkg-config --libs sdl3-mixer 2>/dev/null` -lm -lGL
+CFLAGS = -g3 -O3 -Wno-write-strings `pkg-config --cflags sdl3` `pkg-config --cflags sdl3-mixer 2>/dev/null`
+LDFLAGS = `pkg-config --libs sdl3` `pkg-config --libs sdl3-mixer 2>/dev/null` -lm -lGL
 RM = rm -f
 CP = cp -r
 MD = mkdir -p

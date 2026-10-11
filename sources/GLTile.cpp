@@ -5,7 +5,6 @@
 #include "3DStuff.h"
 
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 
 #include "auxiliar.h"
 #include "2DCMC.h"
@@ -145,7 +144,7 @@ GLTile::GLTile(char *fname, int ax, int ay, int adx, int ady)
 	cmc = 0;
 
 	{
-		SDL_Surface *sfc = IMG_Load(fname);
+		SDL_Surface *sfc = SDL_LoadPNG(fname);
 
 		if (sfc != 0) {
 			SDL_Surface *sfc2 = SDL_CreateRGBSurface(SDL_SWSURFACE, adx, ady, 32, RMASK, GMASK, BMASK, AMASK);
@@ -423,7 +422,7 @@ void GLTile::set
 
 	nparts = 1;
 	tile = new SDL_Surface * [1];
-	tile[0] = IMG_Load(fname);
+	tile[0] = SDL_LoadPNG(fname);
 
 	x = new int[1];
 	y = new int[1];
@@ -565,7 +564,7 @@ void GLTile::set_smooth(char *fname)
 
 	nparts = 1;
 	tile = new SDL_Surface * [1];
-	tile[0] = IMG_Load(fname);
+	tile[0] = SDL_LoadPNG(fname);
 
 	x = new int[1];
 	y = new int[1];
@@ -658,7 +657,7 @@ void GLTile::set_clamp(char *fname)
 
 	nparts = 1;
 	tile = new SDL_Surface * [1];
-	tile[0] = IMG_Load(fname);
+	tile[0] = SDL_LoadPNG(fname);
 
 	x = new int[1];
 	y = new int[1];

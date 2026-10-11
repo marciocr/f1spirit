@@ -1,11 +1,10 @@
 Dependencies:
- SDL3
- SDL3_image
+ SDL3 (>= 3.4, for its built-in PNG loader)
  SDL3_mixer
  GLM (header-only, used for a few matrix operations)
 
 On Ubuntu/Debian you can get all necessary packages by typing:
- sudo apt-get install g++ make pkg-config libsdl3-dev libsdl3-image-dev libsdl3-mixer-dev libglm-dev
+ sudo apt-get install g++ make pkg-config libsdl3-dev libsdl3-mixer-dev libglm-dev
 
 If your distro doesn't package libsdl3-mixer-dev yet, the Makefile degrades
 gracefully and builds without audio; everything else still works.

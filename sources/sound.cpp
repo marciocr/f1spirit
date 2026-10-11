@@ -21,6 +21,13 @@ static int n_channels = -1;
 static int n_reserved_channels = 0;
 static char last_loaded_path[256] = "";
 
+/* Master volumes (AUDIO menu), in percent; they scale every gain the game
+   asks for. music_requested_volume remembers the last Sound_music_volume()
+   so a master change applies to the music already playing. */
+static int master_music_volume = 100;
+static int master_sfx_volume = 100;
+static int music_requested_volume = 127;
+
 
 static MIX_Track *find_free_channel(void)
 {
@@ -239,7 +246,7 @@ void Sound_play(SOUNDT s, int volume)
 		if (t != 0) {
 			MIX_SetTrackAudio(t, s);
 			MIX_SetTrackLoops(t, 0);
-			MIX_SetTrackGain(t, volume / 128.0F);
+			MIX_SetTrackGain(t, volume / 128.0F * Sound_sfx_gain());
 			MIX_PlayTrack(t, 0);
 		}
 	}
@@ -259,7 +266,7 @@ void Sound_play_ch(SOUNDT s, int ch, int volume)
 		t = channel_tracks[ch];
 		MIX_SetTrackAudio(t, s);
 		MIX_SetTrackLoops(t, 0);
-		MIX_SetTrackGain(t, volume / 128.0F);
+		MIX_SetTrackGain(t, volume / 128.0F * Sound_sfx_gain());
 		MIX_PlayTrack(t, 0);
 	}
 } /* Sound_play_ch */
@@ -373,6 +380,34 @@ void Sound_music_volume(int volume)
 	if (volume > 127)
 		volume = 127;
 
+	music_requested_volume = volume;
+
 	if (music_track != 0)
-		MIX_SetTrackGain(music_track, volume / 128.0F);
+		MIX_SetTrackGain(music_track, volume / 128.0F * master_music_volume / 100.0F);
 } /* Sound_music_volume */
+
+
+void Sound_set_master_volume(int music, int sfx)
+{
+	master_music_volume = (music < 0) ? 0 : ((music > 100) ? 100 : music);
+	master_sfx_volume = (sfx < 0) ? 0 : ((sfx > 100) ? 100 : sfx);
+	Sound_music_volume(music_requested_volume);
+} /* Sound_set_master_volume */
+
+
+int Sound_get_master_music_volume(void)
+{
+	return master_music_volume;
+} /* Sound_get_master_music_volume */
+
+
+int Sound_get_master_sfx_volume(void)
+{
+	return master_sfx_volume;
+} /* Sound_get_master_sfx_volume */
+
+
+float Sound_sfx_gain(void)
+{
+	return master_sfx_volume / 100.0F;
+} /* Sound_sfx_gain */

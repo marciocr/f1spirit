@@ -11,7 +11,6 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_mixer/SDL_mixer.h>
-#include <SDL3_image/SDL_image.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -36,6 +35,8 @@
 #include "F1SpiritApp.h"
 #include "F1Spirit-auxiliar.h"
 #include "randomc.h"
+#include "video.h"
+#include "postfx.h"
 
 #include "debug.h"
 
@@ -55,6 +56,7 @@ int N_SFX_CHANNELS = 16;
 int COLOUR_DEPTH = 32;
 bool sound = true;
 bool fullscreen = false;
+int window_scale = 1;
 
 SDL_Window *main_window = 0;
 SDL_GLContext gl_context = 0;
@@ -77,6 +79,74 @@ char console_msg[80] = "";
 /*      AUXILIAR FUNCTION DEFINITION:       */
 
 
+void video_window_resized(void)
+{
+	int w = SCREEN_X, h = SCREEN_Y;
+
+	SDL_GetWindowSizeInPixels(main_window, &w, &h);
+
+	/* With a filter the game draws into a fixed 640x480 framebuffer. */
+	if (postfx_active())
+		calcMinMax(SCREEN_X, SCREEN_Y);
+	else
+		calcMinMax(w, h);
+}
+
+
+int video_max_window_scale(void)
+{
+	SDL_Rect r;
+	int scale = 1;
+
+	if (main_window != 0 &&
+	        SDL_GetDisplayUsableBounds(SDL_GetDisplayForWindow(main_window), &r)) {
+		while (SCREEN_X * (scale + 1) <= r.w && SCREEN_Y * (scale + 1) <= r.h)
+			scale++;
+	}
+
+	return scale;
+}
+
+
+static void video_apply(void)
+{
+	if (!fullscreen) {
+		int max_scale = video_max_window_scale();
+
+		if (window_scale > max_scale)
+			window_scale = max_scale;
+
+		if (window_scale < 1)
+			window_scale = 1;
+	}
+
+	SDL_SetWindowFullscreen(main_window, fullscreen);
+
+	if (!fullscreen) {
+		SDL_SetWindowSize(main_window, SCREEN_X * window_scale, SCREEN_Y * window_scale);
+		SDL_SetWindowPosition(main_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	}
+
+	SDL_SyncWindow(main_window);
+	video_window_resized();
+	SDL_HideCursor();
+}
+
+
+void video_set_fullscreen(bool f)
+{
+	fullscreen = f;
+	video_apply();
+}
+
+
+void video_set_window_scale(int scale)
+{
+	window_scale = scale;
+	video_apply();
+}
+
+
 bool initialization(Uint64 flags)
 {
 	rg = new TRanrotBGenerator(0);
@@ -86,7 +156,7 @@ bool initialization(Uint64 flags)
 	output_debug_message("Initializing SDL\n");
 #endif
 
-	if (!SDL_Init(SDL_INIT_VIDEO | (sound ? SDL_INIT_AUDIO : 0) | SDL_INIT_JOYSTICK)) {
+	if (!SDL_Init(SDL_INIT_VIDEO | (sound ? SDL_INIT_AUDIO : 0) | SDL_INIT_GAMEPAD)) {
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 		output_debug_message("Video initialization failed: %s\n", SDL_GetError());
 #endif
@@ -132,8 +202,8 @@ bool initialization(Uint64 flags)
 	output_debug_message("Initializing video mode\n");
 
 #endif
-	flags = SDL_WINDOW_OPENGL | flags;
-	main_window = SDL_CreateWindow(application_name, (fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y, flags);
+	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | flags;
+	main_window = SDL_CreateWindow(application_name, SCREEN_X, SCREEN_Y, flags);
 
 	if (main_window == 0) {
 #ifdef F1SPIRIT_DEBUG_MESSAGES
@@ -158,7 +228,7 @@ bool initialization(Uint64 flags)
 
 #endif
 
-	calcMinMax((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y);
+	video_window_resized();
 
 	SDL_SetWindowTitle(main_window, application_name);
 
@@ -209,6 +279,10 @@ void finalization()
 	if (sound)
 		Sound_release();
 
+	KEYBOARDSTATE::close_gamepads();
+
+	postfx_release();
+
 	SDL_Quit();
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
@@ -247,6 +321,9 @@ int main(int argc, char** argv) {
 	k = new KEYBOARDSTATE();
 
 	game = new F1SpiritApp();
+
+	/* f1spirit.cfg is read by F1SpiritApp, after the window already exists: */
+	video_apply();
 
 	time = init_time = SDL_GetTicks();
 
@@ -297,18 +374,8 @@ int main(int argc, char** argv) {
 
 						if ((modifiers & SDL_KMOD_GUI) != 0) {
 							/* Toggle FULLSCREEN mode: */
-							if (fullscreen)
-								fullscreen = false;
-							else
-								fullscreen = true;
-
-							SDL_SetWindowFullscreen(main_window, fullscreen);
-
-							calcMinMax((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y);
-
-							SDL_HideCursor();
-
-							reload_textures++;
+							video_set_fullscreen(!fullscreen);
+							game->save_configuration("f1spirit.cfg");
 						}
 					}
 
@@ -320,18 +387,8 @@ int main(int argc, char** argv) {
 
 						if ((modifiers & SDL_KMOD_ALT) != 0) {
 							/* Toggle FULLSCREEN mode: */
-							if (fullscreen)
-								fullscreen = false;
-							else
-								fullscreen = true;
-
-							SDL_SetWindowFullscreen(main_window, fullscreen);
-
-							calcMinMax((fullscreen)?desktopW:SCREEN_X, (fullscreen)?desktopH:SCREEN_Y);
-
-							SDL_HideCursor();
-
-							reload_textures++;
+							video_set_fullscreen(!fullscreen);
+							game->save_configuration("f1spirit.cfg");
 						}
 					}
 
@@ -372,6 +429,21 @@ int main(int argc, char** argv) {
 
 				case SDL_EVENT_QUIT:
 					quit = true;
+
+					break;
+
+				case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+					video_window_resized();
+
+					break;
+
+				case SDL_EVENT_GAMEPAD_ADDED:
+					KEYBOARDSTATE::gamepad_added(event.gdevice.which);
+
+					break;
+
+				case SDL_EVENT_GAMEPAD_REMOVED:
+					KEYBOARDSTATE::gamepad_removed(event.gdevice.which);
 
 					break;
 			}

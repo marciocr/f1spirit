@@ -9,7 +9,6 @@
 #include "3DStuff.h"
 
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
@@ -855,6 +854,7 @@ bool CCar::cycle(bool kaccelerate, bool kbrake, int kgear, int kturn, CRoadPiece
 
 			MIX_SetTrackAudio(t, S_carengine);
 			MIX_SetTrackLoops(t, -1);
+			MIX_SetTrackGain(t, Sound_sfx_gain());
 			MIX_PlayTrack(t, 0);
 		}
 		carengine_sounding = true;

@@ -136,12 +136,14 @@ class CPlayerInfo
 		void set_bestlap(int i, Uint32 p);
 		void set_position(int i, int p);
 
+		/* The stored per-profile volumes are no longer used: the AUDIO options
+		   (master volumes) control the level, these are just the race mix. */
 		int get_music_volume(void) {
-			return music_volume;
+			return 128;
 		};
 
 		int get_sfx_volume(void) {
-			return sfx_volume;
+			return 64;
 		};
 
 		void set_music_volume(int v) {

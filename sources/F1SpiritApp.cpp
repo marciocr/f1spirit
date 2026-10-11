@@ -15,7 +15,6 @@
 #include "3DStuff.h"
 
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
@@ -40,6 +39,9 @@
 #include "F1SpiritGame.h"
 #include "F1SpiritTrackViewer.h"
 #include "F1SpiritApp.h"
+#include "video.h"
+#include "controls.h"
+#include "postfx.h"
 #include "F1Spirit-auxiliar.h"
 #include "filehandling.h"
 #include "SDL_glutaux.h"
@@ -139,6 +141,9 @@ F1SpiritApp::F1SpiritApp()
 	glesSpecial(false);
 
 	load_configuration("f1spirit.cfg");
+
+	if (!Controls_load())
+		Controls_save();
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 
@@ -250,11 +255,11 @@ F1SpiritApp::F1SpiritApp()
 	hiscore_table_regen = true;
 
 	/* MENU: */
-	menu_background = new GLTile("graphics/menu_background.jpg");
+	menu_background = new GLTile("graphics/menu_background.png");
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 
-	output_debug_message("graphics/carmodelw.jpg: %p\n", menu_background);
+	output_debug_message("graphics/carmodelw.png: %p\n", menu_background);
 
 #endif
 
@@ -555,6 +560,10 @@ bool F1SpiritApp::cycle(KEYBOARDSTATE *k)
 {
 	int old_state = state;
 
+	/* Gamepads steer cars during a race; everywhere else they work the menus.
+	   (Takes effect from the next k->cycle().) */
+	KEYBOARDSTATE::gamepad_menu_navigation = (state != APP_STATE_RACE);
+
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 
 	if (state_cycle == 0) {
@@ -636,6 +645,8 @@ bool F1SpiritApp::cycle(KEYBOARDSTATE *k)
 
 void F1SpiritApp::draw()
 {
+	postfx_begin_frame();
+
 	float lightpos[4] = {0, 0, -1000, 0};
 	float tmpls[4] = {1.0F, 1.0F, 1.0F, 1.0};
 	float tmpld[4] = {1.0F, 1.0F, 1.0F, 1.0};
@@ -788,6 +799,12 @@ void F1SpiritApp::draw()
 	}
 	
 	glDisable(GL_BLEND);
+
+	{
+		int w, h;
+		SDL_GetWindowSizeInPixels(main_window, &w, &h);
+		postfx_end_frame(w, h);
+	}
 
 	SDL_GL_SwapWindow(main_window);
 }
@@ -1084,13 +1101,23 @@ bool F1SpiritApp::load_configuration(char *file)
 	fp = f1open(file, "r", USERDATA);
 
 	if (fp != 0) {
-		int tmp;
+		int tmp, music, sfx;
 
 		if (1 == fscanf(fp, "%i", &tmp)) {
 			if (tmp == 0)
 				fullscreen = false;
 			else
 				fullscreen = true;
+
+			/* Added later; files from older versions just end here: */
+			if (1 == fscanf(fp, "%i", &tmp) && tmp >= 1)
+				window_scale = tmp;
+
+			if (2 == fscanf(fp, "%i %i", &music, &sfx))
+				Sound_set_master_volume(music, sfx);
+
+			if (1 == fscanf(fp, "%i", &tmp))
+				postfx_set_filter(tmp);
 		} else {
 			error = true;
 		} 
@@ -1115,6 +1142,9 @@ bool F1SpiritApp::save_configuration(char *file)
 
 	if (fp != 0) {
 		fprintf(fp, "%i\n", (fullscreen ? 1 : 0));
+		fprintf(fp, "%i\n", window_scale);
+		fprintf(fp, "%i %i\n", Sound_get_master_music_volume(), Sound_get_master_sfx_volume());
+		fprintf(fp, "%i\n", video_filter);
 		fclose(fp);
 		return true;
 	} 

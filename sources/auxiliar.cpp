@@ -12,7 +12,6 @@
 #include "string.h"
 
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 
 #include "auxiliar.h"
 #include "List.h"
@@ -87,9 +86,9 @@ SDL_Surface *load_maskedimage(char *imagefile, char *maskfile, char *path)
 	SDL_Surface *mask;
 
 	sprintf(name, "%s%s", path, imagefile);
-	tmp = IMG_Load(name);
+	tmp = SDL_LoadPNG(name);
 	sprintf(name, "%s%s", path, imagefile);
-	mask = IMG_Load(name);
+	mask = SDL_LoadPNG(name);
 
 	if (tmp == 0 ||
 	        mask == 0)

@@ -99,16 +99,6 @@ static inline void F1S_GetRGBA(Uint32 pixel, SDL_PixelFormat format, Uint8 *r, U
    constant (the "full volume" value) unchanged. */
 #define MIX_MAX_VOLUME 128
 
-/* SDL3 dropped SDL_NumJoysticks(); the closest equivalent is asking
-   SDL_GetJoysticks() for the array it allocates just to read its count back. */
-static inline int SDL_NumJoysticks(void)
-{
-	int count = 0;
-	SDL_JoystickID *ids = SDL_GetJoysticks(&count);
-	SDL_free(ids);
-	return count;
-}
-
 #ifndef _WIN32
 #ifndef HAVE_STRLWR
 
