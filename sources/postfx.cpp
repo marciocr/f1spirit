@@ -307,7 +307,8 @@ static GLuint stretch_program = 0;
 
 struct Pass {
 	const char *file;
-	int scale;	/* output size relative to the game's 640x480 */
+	int scale;	/* output size relative to the game's 640x480; 0 = straight to the
+			   window at its final size (only as the last pass) */
 };
 
 struct Filter {
@@ -325,6 +326,8 @@ static Filter filters[N_FILTERS] = {
 	{"2XSAI", 1, {{"shaders/2xsai.glsl", 2}, {0, 0}}, false, {0, 0}, false, false},
 	{"HQ2X", 2, {{"shaders/hqx-pass1.glsl", 1}, {"shaders/hqx-pass2.glsl", 2}}, true, {0, 0}, false, false},
 	{"XBR", 1, {{"shaders/xbr-lv2.glsl", 2}, {0, 0}}, false, {0, 0}, false, false},
+	{"OMNISCALE", 1, {{"shaders/omniscale.glsl", 0}, {0, 0}}, false, {0, 0}, false, false},
+	{"LANCZOS", 1, {{"shaders/lanczos3.glsl", 0}, {0, 0}}, false, {0, 0}, false, false},
 };
 
 
@@ -416,7 +419,7 @@ static bool load_filter(Filter *f)
 		Target *t = &pass_target[i];
 		int w = GAME_W * f->passes[i].scale, h = GAME_H * f->passes[i].scale;
 
-		if (t->w != w || t->h != h) {
+		if (f->passes[i].scale != 0 && (t->w != w || t->h != h)) {
 			delete_target(t);
 
 			if (!create_target(t, w, h, false))
@@ -553,12 +556,24 @@ void postfx_end_frame(int window_w, int window_h)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
+	/* Where the image goes in the window: 4:3, centred, black bars. */
+	if (window_w * GAME_H > window_h * GAME_W) {
+		w = window_h * GAME_W / GAME_H;
+		h = window_h;
+	} else {
+		w = window_w;
+		h = window_w * GAME_H / GAME_W;
+	}
+
 	src = game_target.tex;
 	src_w = GAME_W;
 	src_h = GAME_H;
 
 	for (i = 0;i < f->npasses;i++) {
 		Target *t = &pass_target[i];
+
+		if (f->passes[i].scale == 0)
+			break;
 
 		p_glBindFramebuffer(GL_FRAMEBUFFER, t->fbo);
 		glViewport(0, 0, t->w, t->h);
@@ -569,28 +584,24 @@ void postfx_end_frame(int window_w, int window_h)
 		src_h = t->h;
 	}
 
-	/* Stretch to the window, keeping 4:3, with black bars. */
 	p_glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, window_w, window_h);
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	if (window_w * GAME_H > window_h * GAME_W) {
-		w = window_h * GAME_W / GAME_H;
-		h = window_h;
-	} else {
-		w = window_w;
-		h = window_w * GAME_H / GAME_W;
-	}
-
 	glViewport((window_w - w) / 2, (window_h - h) / 2, w, h);
 
-	glBindTexture(GL_TEXTURE_2D, src);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	draw_quad(stretch_program, src, src_w, src_h, w, h);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	if (i < f->npasses) {
+		/* Resolution-independent filter: renders the window directly. */
+		draw_quad(f->programs[i], src, src_w, src_h, w, h);
+	} else {
+		/* Fixed-scale filter: stretch its output to the window (bilinear). */
+		glBindTexture(GL_TEXTURE_2D, src);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		draw_quad(stretch_program, src, src_w, src_h, w, h);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
 
 	p_glUseProgram(0);
 	glPopAttrib();

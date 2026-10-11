@@ -2,8 +2,9 @@
 #define __F1SPIRIT_POSTFX_H
 
 /* Upscaling filters (VIDEO -> FILTER). With a filter on, the game is drawn
-   into a 640x480 framebuffer, the filter shader(s) in shaders/ scale it 2x,
-   and the result is stretched (bilinear, letterboxed) to the window. With
+   into a 640x480 framebuffer, the filter shader(s) in shaders/ scale it
+   (2x then a bilinear stretch, or straight to the window size for the
+   resolution-independent ones), letterboxed to 4:3. With
    FILTER_OFF the game draws straight to the window at its full resolution,
    as before. */
 
@@ -13,6 +14,8 @@ enum {
 	FILTER_2XSAI,
 	FILTER_HQ2X,
 	FILTER_XBR,
+	FILTER_OMNISCALE,
+	FILTER_LANCZOS,
 	N_FILTERS
 };
 
