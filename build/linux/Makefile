@@ -42,8 +42,8 @@ CXX = g++
 # separately (with stderr silenced) from the others: a single pkg-config
 # invocation covering several modules fails *entirely*, for every module,
 # the moment just one of them isn't installed.
-CFLAGS = -g3 -O3 -Wno-write-strings `pkg-config --cflags sdl3 sdl3-image` `pkg-config --cflags sdl3-mixer 2>/dev/null`
-LDFLAGS = `pkg-config --libs sdl3 sdl3-image` `pkg-config --libs sdl3-mixer 2>/dev/null` -lm -lGL
+CFLAGS = -g3 -O3 -Wno-write-strings `pkg-config --cflags sdl3` `pkg-config --cflags sdl3-mixer 2>/dev/null`
+LDFLAGS = `pkg-config --libs sdl3` `pkg-config --libs sdl3-mixer 2>/dev/null` -lm -lGL
 RM = rm -f
 CP = cp -r
 MD = mkdir -p

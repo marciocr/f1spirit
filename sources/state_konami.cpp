@@ -79,7 +79,7 @@ void F1SpiritApp::konami_draw(void)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	if (konami_image1 == 0)
-		konami_image1 = new GLTile("graphics/konami1.jpg");
+		konami_image1 = new GLTile("graphics/konami1.png");
 
 	if (konami_image2 == 0)
 		konami_image2 = new GLTile("graphics/konami2.png");

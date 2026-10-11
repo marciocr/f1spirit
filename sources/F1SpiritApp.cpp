@@ -15,7 +15,6 @@
 #include "3DStuff.h"
 
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
@@ -250,11 +249,11 @@ F1SpiritApp::F1SpiritApp()
 	hiscore_table_regen = true;
 
 	/* MENU: */
-	menu_background = new GLTile("graphics/menu_background.jpg");
+	menu_background = new GLTile("graphics/menu_background.png");
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 
-	output_debug_message("graphics/carmodelw.jpg: %p\n", menu_background);
+	output_debug_message("graphics/carmodelw.png: %p\n", menu_background);
 
 #endif
 

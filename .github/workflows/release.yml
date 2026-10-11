@@ -55,10 +55,6 @@ jobs:
           }
           build_cmake_dep https://github.com/libsdl-org/SDL.git release-3.4.14 SDL3 \
             -DSDL_SHARED=ON -DSDL_STATIC=OFF -DSDL_TEST_LIBRARY=OFF
-          build_cmake_dep https://github.com/libsdl-org/SDL_image.git release-3.4.4 SDL3_image \
-            -DBUILD_SHARED_LIBS=ON -DSDLIMAGE_VENDORED=ON -DSDLIMAGE_BMP=ON -DSDLIMAGE_JPG=ON \
-            -DSDLIMAGE_AVIF=OFF -DSDLIMAGE_WEBP=OFF -DSDLIMAGE_TIF=OFF -DSDLIMAGE_PNG=ON \
-            -DCMAKE_PREFIX_PATH="$PREFIX"
           build_cmake_dep https://github.com/libsdl-org/SDL_mixer.git release-3.2.4 SDL3_mixer \
             -DBUILD_SHARED_LIBS=ON -DSDLMIXER_VENDORED=ON -DSDLMIXER_EXAMPLES=OFF \
             -DSDLMIXER_TESTS=OFF -DSDLMIXER_MP3=OFF -DSDLMIXER_FLAC=OFF -DSDLMIXER_MOD=OFF \

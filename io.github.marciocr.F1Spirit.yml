@@ -12,7 +12,8 @@ finish-args:
   # Gamepad support (SDL3): the Flatpak sandbox does not expose /dev/input
   # by default, and there's no portal for raw joystick/gamepad access, so
   # SDL's Linux joystick backend can't see any controller without this.
-  - --device=all
+  # --device=input (Flatpak >= 1.15.6) grants just /dev/input.
+  - --device=input
 
 modules:
   - name: SDL3
@@ -25,22 +26,6 @@ modules:
       - type: git
         url: https://github.com/libsdl-org/SDL.git
         tag: release-3.4.14
-
-  - name: SDL3_image
-    buildsystem: cmake-ninja
-    config-opts:
-      - -DBUILD_SHARED_LIBS=ON
-      - -DSDLIMAGE_VENDORED=ON
-      - -DSDLIMAGE_BMP=ON
-      - -DSDLIMAGE_JPG=ON
-      - -DSDLIMAGE_AVIF=OFF
-      - -DSDLIMAGE_WEBP=OFF
-      - -DSDLIMAGE_TIF=OFF
-      - -DSDLIMAGE_PNG=ON
-    sources:
-      - type: git
-        url: https://github.com/libsdl-org/SDL_image.git
-        tag: release-3.4.4
 
   - name: SDL3_mixer
     buildsystem: cmake-ninja

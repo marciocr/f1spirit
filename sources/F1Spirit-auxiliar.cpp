@@ -12,7 +12,6 @@
 #include <math.h>
 
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include <SDL3_mixer/SDL_mixer.h>
 
 #include "auxiliar.h"
@@ -105,7 +104,7 @@ void free_auxiliar_menu_surfaces(void)
 SDL_Surface *load_bmp_font(char *filename, int first, int last)
 {
 	SDL_Surface *bitmap_font = 0;
-	SDL_Surface *sfc = IMG_Load(filename);
+	SDL_Surface *sfc = SDL_LoadPNG(filename);
 	
 	if (sfc != 0) {
 		int w = (sfc->w / (last - first));

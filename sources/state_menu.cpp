@@ -13,7 +13,6 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_mixer/SDL_mixer.h>
-#include <SDL3_image/SDL_image.h>
 
 #include "F1Spirit.h"
 #include "sound.h"
@@ -1567,15 +1566,15 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 				if (car_type > 5)
 					car_type = 5;
 
-				parts[0] = IMG_Load(bnames[car_type * 3 + menu_selected_part[menu_selecting_player][0]]);
+				parts[0] = SDL_LoadPNG(bnames[car_type * 3 + menu_selected_part[menu_selecting_player][0]]);
 
-				parts[1] = IMG_Load(engines[menu_selected_part[menu_selecting_player][1]]);
+				parts[1] = SDL_LoadPNG(engines[menu_selected_part[menu_selecting_player][1]]);
 
-				parts[2] = IMG_Load(names[menu_selected_part[menu_selecting_player][2]]);
+				parts[2] = SDL_LoadPNG(names[menu_selected_part[menu_selecting_player][2]]);
 
-				parts[3] = IMG_Load(names[1 * 3 + menu_selected_part[menu_selecting_player][3]]);
+				parts[3] = SDL_LoadPNG(names[1 * 3 + menu_selected_part[menu_selecting_player][3]]);
 
-				parts[4] = IMG_Load(names[2 * 3 + menu_selected_part[menu_selecting_player][4]]);
+				parts[4] = SDL_LoadPNG(names[2 * 3 + menu_selected_part[menu_selecting_player][4]]);
 
 				w = max(parts[1]->w, parts[2]->w) + 32 +
 				    parts[0]->w + 32 +

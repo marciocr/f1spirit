@@ -12,7 +12,6 @@
 #include "3DStuff.h"
 
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include <SDL3_mixer/SDL_mixer.h>
 
 #include "F1Spirit.h"
@@ -216,24 +215,24 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 		switch (ntrack) {
 
 			case 6:
-				sfc = IMG_Load("graphics/f1-brazil/grass.png");
+				sfc = SDL_LoadPNG("graphics/f1-brazil/grass.png");
 				tiles.Add(new GLTile(sfc, 0, 0, 64, 64));
 				SDL_FreeSurface(sfc);
 				break;
 
 			case 7:
-				sfc = IMG_Load("graphics/f1-sanmarino/grass.png");
+				sfc = SDL_LoadPNG("graphics/f1-sanmarino/grass.png");
 				tiles.Add(new GLTile(sfc, 0, 0, 64, 64));
 				SDL_FreeSurface(sfc);
 				break;
 
 			default:
-				sfc = IMG_Load("graphics/stock/tiles.png");
+				sfc = SDL_LoadPNG("graphics/stock/tiles.png");
 				tiles.Add(new GLTile(sfc, 0, 0, 64, 64));
 				SDL_FreeSurface(sfc);
 		} 
 
-		sfc = IMG_Load("graphics/stock/tiles.png");
+		sfc = SDL_LoadPNG("graphics/stock/tiles.png");
 
 		tiles.Add(new GLTile(sfc, 0, 64, 48, 48));
 
@@ -243,7 +242,7 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 
 		SDL_FreeSurface(sfc);
 
-		sfc = IMG_Load("graphics/stock/arrows.png");
+		sfc = SDL_LoadPNG("graphics/stock/arrows.png");
 
 		tiles.Add(new GLTile(sfc, 0, 0, 32, 32));
 
@@ -255,7 +254,7 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 
 		SDL_FreeSurface(sfc);
 
-		sfc = IMG_Load("graphics/stock/pit.png");
+		sfc = SDL_LoadPNG("graphics/stock/pit.png");
 
 		tiles.Add(new GLTile(sfc, 0, 0, 32, 48));
 
@@ -263,7 +262,7 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 
 		SDL_FreeSurface(sfc);
 
-		sfc = IMG_Load("graphics/stock/fences.png");
+		sfc = SDL_LoadPNG("graphics/stock/fences.png");
 
 		tiles.Add(new GLTile(sfc, 0, 0, 64, 64)); /* 10 */
 
@@ -289,7 +288,7 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 
 		SDL_FreeSurface(sfc);
 
-		sfc = IMG_Load("graphics/stock/crowd.png");
+		sfc = SDL_LoadPNG("graphics/stock/crowd.png");
 
 		tiles.Add(new GLTile(sfc, 0, 0, 80, 64)); /* 21 */
 
@@ -335,13 +334,13 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 
 		SDL_FreeSurface(sfc);
 
-		sfc = IMG_Load("graphics/rally/tiles.png");
+		sfc = SDL_LoadPNG("graphics/rally/tiles.png");
 
 		tiles.Add(new GLTile(sfc, 0, 0, 64, 64)); /* 42 */
 
 		SDL_FreeSurface(sfc);
 
-		sfc = IMG_Load("graphics/rally/walls.png");
+		sfc = SDL_LoadPNG("graphics/rally/walls.png");
 
 		tiles.Add(new GLTile(sfc, 0, 0, 32, 32)); /* 43 */
 
@@ -381,7 +380,7 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 
 		SDL_FreeSurface(sfc);
 
-		sfc = IMG_Load("graphics/rally/extras.png");
+		sfc = SDL_LoadPNG("graphics/rally/extras.png");
 
 		tiles.Add(new GLTile(sfc, 0, 0, 96, 24)); /* 61 */
 
@@ -399,7 +398,7 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 
 		SDL_FreeSurface(sfc);
 
-		sfc = IMG_Load("graphics/rally/crowd.png");
+		sfc = SDL_LoadPNG("graphics/rally/crowd.png");
 
 		tiles.Add(new GLTile(sfc, 0, 0, 32, 64)); /* 68 */
 
@@ -417,7 +416,7 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 
 		SDL_FreeSurface(sfc);
 
-		sfc = IMG_Load("graphics/f3/lfences.png");
+		sfc = SDL_LoadPNG("graphics/f3/lfences.png");
 
 		tiles.Add(new GLTile(sfc, 0, 0, 64, 64)); /* 75 */
 
@@ -443,7 +442,7 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 
 		SDL_FreeSurface(sfc);
 
-		sfc = IMG_Load("graphics/f3/rfences.png");
+		sfc = SDL_LoadPNG("graphics/f3/rfences.png");
 
 		tiles.Add(new GLTile(sfc, 0, 0, 32, 64)); /* 86 */
 
@@ -453,25 +452,25 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 
 		SDL_FreeSurface(sfc);
 
-		sfc = IMG_Load("graphics/rally/extras.png");
+		sfc = SDL_LoadPNG("graphics/rally/extras.png");
 
 		tiles.Add(new GLTile(sfc, 0, 240, 80, 224)); /* 89 */
 
 		SDL_FreeSurface(sfc);
 
 		if (ntrack == 16) {
-			sfc = IMG_Load("graphics/f1-portugal/extras.png");
+			sfc = SDL_LoadPNG("graphics/f1-portugal/extras.png");
 			tiles.Add(new GLTile(sfc, 0, 0, 80, 224)); /* 90 */
 			SDL_FreeSurface(sfc);
 		} else {
-			sfc = IMG_Load("graphics/f3/extras.png");
+			sfc = SDL_LoadPNG("graphics/f3/extras.png");
 			tiles.Add(new GLTile(sfc, 0, 0, 80, 224)); /* 90 */
 			SDL_FreeSurface(sfc);
 		} 
 
 		if (ntrack == 10) {
 			/* F1-FRANCE: */
-			sfc = IMG_Load("graphics/f1-france/isle.png");
+			sfc = SDL_LoadPNG("graphics/f1-france/isle.png");
 			tiles.Add(new GLTile(sfc, 0, 0, 96, 96)); /* 91 */
 			tiles.Add(new GLTile(sfc, 0, 96, 96, 96));
 			tiles.Add(new GLTile(sfc, 0, 192, 96, 96));
@@ -479,13 +478,13 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 		} else {
 			if (ntrack == 12) {
 				/* F1-WESTGERMANY: */
-				sfc = IMG_Load("graphics/f1-westgermany/isle.png");
+				sfc = SDL_LoadPNG("graphics/f1-westgermany/isle.png");
 				tiles.Add(new GLTile(sfc, 0, 0, 96, 96)); /* 91 */
 				tiles.Add(new GLTile(sfc, 0, 96, 96, 96));
 				tiles.Add(new GLTile(sfc, 0, 192, 96, 96));
 				SDL_FreeSurface(sfc);
 			} else {
-				sfc = IMG_Load("graphics/f3/isle.png");
+				sfc = SDL_LoadPNG("graphics/f3/isle.png");
 				tiles.Add(new GLTile(sfc, 0, 0, 96, 96)); /* 91 */
 				tiles.Add(new GLTile(sfc, 0, 96, 96, 96));
 				tiles.Add(new GLTile(sfc, 0, 192, 96, 96));
@@ -493,7 +492,7 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 			} 
 		} 
 
-		sfc = IMG_Load("graphics/endurance/extras.png");
+		sfc = SDL_LoadPNG("graphics/endurance/extras.png");
 
 		tiles.Add(new GLTile(sfc, 0, 0, 64, 48)); /* 94 */
 
@@ -606,7 +605,7 @@ void F1SpiritTrackViewer::initialize_track(int ntrack)
 	}
 
 	{
-		SDL_Surface *race_minimap_enemycar_sfc = IMG_Load("graphics/minimap-enemycar.png");
+		SDL_Surface *race_minimap_enemycar_sfc = SDL_LoadPNG("graphics/minimap-enemycar.png");
 		SDL_Rect r2;
 		SDL_Surface *sfc = SDL_CreateRGBSurface(SDL_SWSURFACE, race_minimap_enemycar_sfc->w, race_minimap_enemycar_sfc->h, 32, RMASK, GMASK, BMASK, AMASK);
 		r2.x = 0;
