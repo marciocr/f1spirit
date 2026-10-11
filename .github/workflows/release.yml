@@ -75,7 +75,7 @@ jobs:
           APPDIR="$PWD/AppDir"
           mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/lib"
           cp f1spirit "$APPDIR/usr/bin/f1spirit.bin"
-          cp -r demos graphics tracks sound readme.txt "$APPDIR/usr/bin/"
+          cp -r demos graphics shaders tracks sound readme.txt "$APPDIR/usr/bin/"
           cp "$SDL3_PREFIX"/lib/libSDL3*.so* "$APPDIR/usr/lib/"
           install -Dm644 packaging/f1spirit-icon.png "$APPDIR/usr/share/icons/hicolor/50x50/apps/io.github.marciocr.F1Spirit.png"
           install -Dm644 io.github.marciocr.F1Spirit.desktop "$APPDIR/usr/share/applications/io.github.marciocr.F1Spirit.desktop"
@@ -93,7 +93,7 @@ jobs:
         run: |
           PKGDIR=f1spirit-linux-x86_64
           mkdir -p "$PKGDIR"
-          cp f1spirit demos graphics tracks sound readme.txt "$PKGDIR"/ -r
+          cp f1spirit demos graphics shaders tracks sound readme.txt "$PKGDIR"/ -r
           cp -L "$SDL3_PREFIX"/lib/libSDL3*.so* "$PKGDIR"/
           install -Dm755 packaging/f1spirit.sh "$PKGDIR/f1spirit.sh"
           tar czf f1spirit-linux-x86_64.tar.gz "$PKGDIR"

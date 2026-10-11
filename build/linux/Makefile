@@ -9,7 +9,7 @@ BINDIR = $(PREFIX)/share/games/$(EXE)
 ICNDIR = $(PREFIX)/share/pixmaps
 APPDIR = $(PREFIX)/share/applications
 
-DATA = demos graphics tracks sound readme.txt
+DATA = demos graphics shaders tracks sound readme.txt
 ICON = f1spirit.png
 DESKTOP = f1spirit.desktop
 
@@ -36,7 +36,7 @@ OBJS = \
 	$(SRC)/state_trackload.o		$(SRC)/track.o					\
 	$(SRC)/Vector.o					$(SRC)/weather.o				\
 	$(SRC)/filehandling.o			$(SRC)/CarEngineSound.o	\
-	$(SRC)/controls.o
+	$(SRC)/controls.o				$(SRC)/postfx.o
 
 CXX = g++
 # SDL3_mixer isn't packaged everywhere yet, so its pkg-config lookup is called

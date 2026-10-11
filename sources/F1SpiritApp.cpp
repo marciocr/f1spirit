@@ -41,6 +41,7 @@
 #include "F1SpiritApp.h"
 #include "video.h"
 #include "controls.h"
+#include "postfx.h"
 #include "F1Spirit-auxiliar.h"
 #include "filehandling.h"
 #include "SDL_glutaux.h"
@@ -644,6 +645,8 @@ bool F1SpiritApp::cycle(KEYBOARDSTATE *k)
 
 void F1SpiritApp::draw()
 {
+	postfx_begin_frame();
+
 	float lightpos[4] = {0, 0, -1000, 0};
 	float tmpls[4] = {1.0F, 1.0F, 1.0F, 1.0};
 	float tmpld[4] = {1.0F, 1.0F, 1.0F, 1.0};
@@ -796,6 +799,12 @@ void F1SpiritApp::draw()
 	}
 	
 	glDisable(GL_BLEND);
+
+	{
+		int w, h;
+		SDL_GetWindowSizeInPixels(main_window, &w, &h);
+		postfx_end_frame(w, h);
+	}
 
 	SDL_GL_SwapWindow(main_window);
 }
@@ -1106,6 +1115,9 @@ bool F1SpiritApp::load_configuration(char *file)
 
 			if (2 == fscanf(fp, "%i %i", &music, &sfx))
 				Sound_set_master_volume(music, sfx);
+
+			if (1 == fscanf(fp, "%i", &tmp))
+				postfx_set_filter(tmp);
 		} else {
 			error = true;
 		} 
@@ -1132,6 +1144,7 @@ bool F1SpiritApp::save_configuration(char *file)
 		fprintf(fp, "%i\n", (fullscreen ? 1 : 0));
 		fprintf(fp, "%i\n", window_scale);
 		fprintf(fp, "%i %i\n", Sound_get_master_music_volume(), Sound_get_master_sfx_volume());
+		fprintf(fp, "%i\n", video_filter);
 		fclose(fp);
 		return true;
 	} 

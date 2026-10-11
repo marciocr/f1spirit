@@ -62,9 +62,10 @@ modules:
       - make clean
       - make
       - install -Dm755 f1spirit /app/bin/f1spirit.bin
-      - install -d /app/bin/demos /app/bin/graphics /app/bin/tracks /app/bin/sound
+      - install -d /app/bin/demos /app/bin/graphics /app/bin/shaders /app/bin/tracks /app/bin/sound
       - cp -r demos/. /app/bin/demos/
       - cp -r graphics/. /app/bin/graphics/
+      - cp -r shaders/. /app/bin/shaders/
       - cp -r tracks/. /app/bin/tracks/
       - cp -r sound/. /app/bin/sound/
       - install -Dm644 readme.txt /app/bin/readme.txt

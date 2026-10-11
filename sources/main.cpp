@@ -36,6 +36,7 @@
 #include "F1Spirit-auxiliar.h"
 #include "randomc.h"
 #include "video.h"
+#include "postfx.h"
 
 #include "debug.h"
 
@@ -83,7 +84,12 @@ void video_window_resized(void)
 	int w = SCREEN_X, h = SCREEN_Y;
 
 	SDL_GetWindowSizeInPixels(main_window, &w, &h);
-	calcMinMax(w, h);
+
+	/* With a filter the game draws into a fixed 640x480 framebuffer. */
+	if (postfx_active())
+		calcMinMax(SCREEN_X, SCREEN_Y);
+	else
+		calcMinMax(w, h);
 }
 
 
@@ -274,6 +280,8 @@ void finalization()
 		Sound_release();
 
 	KEYBOARDSTATE::close_gamepads();
+
+	postfx_release();
 
 	SDL_Quit();
 

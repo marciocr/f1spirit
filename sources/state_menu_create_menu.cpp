@@ -39,6 +39,7 @@
 #include "F1Spirit-auxiliar.h"
 #include "video.h"
 #include "controls.h"
+#include "postfx.h"
 #include "filehandling.h"
 
 #include "debug.h"
@@ -401,15 +402,16 @@ void F1SpiritApp::menu_create_menu(void)
 			if (menu_current_menu == 31) {
 				char tmp[128];
 				menu_title[1] = 0;
-				sprintf(tmp, "FULLSCREEN: %s\nWINDOW: %iX\nBACK\n",
-				        fullscreen ? "ON" : "OFF", window_scale);
+				sprintf(tmp, "FULLSCREEN: %s\nWINDOW: %iX\nFILTER: %s\nBACK\n",
+				        fullscreen ? "ON" : "OFF", window_scale, postfx_filter_name(video_filter));
 				menu_options[1] = new char[strlen(tmp) + 1];
 				strcpy(menu_options[1], tmp);
-				menu_noptions[1] = 3;
+				menu_noptions[1] = 4;
 				menu_option_type[1][0] = 40;
 				menu_option_type[1][1] = 41;
-				menu_option_type[1][2] = 1;
-				menu_option_parameter[1][2] = 5;
+				menu_option_type[1][2] = 42;
+				menu_option_type[1][3] = 1;
+				menu_option_parameter[1][3] = 5;
 				menu_first_option[1] = 0;
 			} 
 

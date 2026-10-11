@@ -39,6 +39,7 @@
 #include "F1Spirit-auxiliar.h"
 #include "video.h"
 #include "controls.h"
+#include "postfx.h"
 #include "filehandling.h"
 
 #include "debug.h"
@@ -95,6 +96,21 @@ bool menu_adjust_setting(int type, int dir)
 					scale = 1;
 
 				video_set_window_scale(scale);
+			}
+
+			return true;
+
+		case 42: {  /* FILTER */
+				int f = video_filter + ((dir == 0) ? 1 : dir);
+
+				if (f >= N_FILTERS)
+					f = (dir == 0) ? FILTER_OFF : N_FILTERS - 1;
+
+				if (f < FILTER_OFF)
+					f = FILTER_OFF;
+
+				postfx_set_filter(f);
+				video_window_resized();
 			}
 
 			return true;
@@ -720,7 +736,8 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 				         menu_option_type[browsing][menu_selected[browsing]] == 38 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 39 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 40 ||
-				         menu_option_type[browsing][menu_selected[browsing]] == 41)) {
+				         menu_option_type[browsing][menu_selected[browsing]] == 41 ||
+				         menu_option_type[browsing][menu_selected[browsing]] == 42)) {
 					if (menu_adjust_setting(menu_option_type[browsing][menu_selected[browsing]], 1))
 						save_configuration("f1spirit.cfg");
 
@@ -770,7 +787,8 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 				         menu_option_type[browsing][menu_selected[browsing]] == 38 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 39 ||
 				         menu_option_type[browsing][menu_selected[browsing]] == 40 ||
-				         menu_option_type[browsing][menu_selected[browsing]] == 41)) {
+				         menu_option_type[browsing][menu_selected[browsing]] == 41 ||
+				         menu_option_type[browsing][menu_selected[browsing]] == 42)) {
 					if (menu_adjust_setting(menu_option_type[browsing][menu_selected[browsing]], -1))
 						save_configuration("f1spirit.cfg");
 
@@ -840,7 +858,8 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 					        menu_option_type[browsing][menu_selected[browsing]] == 19 ||
 					        menu_option_type[browsing][menu_selected[browsing]] == 20 ||
 					        menu_option_type[browsing][menu_selected[browsing]] == 40 ||
-					        menu_option_type[browsing][menu_selected[browsing]] == 41) {
+					        menu_option_type[browsing][menu_selected[browsing]] == 41 ||
+				         menu_option_type[browsing][menu_selected[browsing]] == 42) {
 						if (menu_adjust_setting(menu_option_type[browsing][menu_selected[browsing]], 0))
 							save_configuration("f1spirit.cfg");
 
