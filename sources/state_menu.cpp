@@ -942,7 +942,7 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 									tmp[i] = '*';
 							} 
 
-							delete menu_options[browsing];
+							delete []menu_options[browsing];
 
 							menu_options[browsing] = 0;
 
@@ -987,7 +987,7 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 							tmp[i] = '*';
 					}
 
-					delete menu_options[browsing];
+					delete []menu_options[browsing];
 
 					menu_options[browsing] = 0;
 

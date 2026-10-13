@@ -296,6 +296,8 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 			case 24: {
 					int i, l, pos;
 
+					/* Only the players actually in this race: the profile may have
+					   more, and their PlayerCCar doesn't exist (race_game->player_cars). */
 					l = strlen("PLAYER 000\n") * current_player->get_nplayers() + strlen("CONTINUE\nQUIT\nRESTART\n\nMUSIC VOL: MAX.\nSFX VOL: MAX.\nPLAYER 1\nPLAYER 2\nPLAYER 3\nPLAYER 4\n") + 1;
 					if (arcade)
 						l = strlen("CONTINUE\nQUIT\n\nMUSIC VOL: MAX.\nSFX VOL: MAX.\nPLAYER 1\n")+1;
@@ -321,7 +323,7 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 						} 
 					} else 
 					{
-						for (i = 0;i < current_player->get_nplayers();i++) {
+						for (i = 0;i < race_game->get_nplayers();i++) {
 							sprintf(menu_options[0] + pos, "PLAYER %i\n", i + 1);
 							pos = strlen(menu_options[0]);
 						} 
@@ -334,7 +336,7 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 					if (arcade)
 						menu_noptions[0] = 5+1;
 					else
-						menu_noptions[0] = current_player->get_nplayers() + 6;
+						menu_noptions[0] = race_game->get_nplayers() + 6;
 
 					menu_option_type[0][0] = 13;
 					menu_option_type[0][1] = 0;
@@ -351,7 +353,7 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 						menu_option_type[0][3] = -1;
 						menu_option_type[0][4] = 15;
 						menu_option_type[0][5] = 16;
-						for (i = 0;i < current_player->get_nplayers();i++) {
+						for (i = 0;i < race_game->get_nplayers();i++) {
 							menu_option_type[0][i + 6] = 11;
 							menu_option_parameter[0][i + 6] = 22;
 						} 
@@ -510,6 +512,9 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 				} else {
 					menu_selected[browsing]++;
 
+					if (menu_selected[browsing] >= menu_noptions[browsing])
+						menu_selected[browsing] -= menu_noptions[browsing];
+
 					if (menu_option_type[browsing][menu_selected[browsing]] == -1)
 						menu_selected[browsing]++;
 
@@ -546,7 +551,11 @@ int F1SpiritApp::gameoptions_cycle(KEYBOARDSTATE *k)
 						} 
 					}
 				} else {
+					/* Wrap before looking at the option, then skip the blank line. */
 					menu_selected[browsing]--;
+
+					if (menu_selected[browsing] < 0)
+						menu_selected[browsing] += menu_noptions[browsing];
 
 					if (menu_option_type[browsing][menu_selected[browsing]] == -1)
 						menu_selected[browsing]--;

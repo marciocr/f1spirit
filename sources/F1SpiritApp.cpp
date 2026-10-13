@@ -341,6 +341,11 @@ F1SpiritApp::F1SpiritApp()
 	menu_readme_move_y = 0;
 	
 	menu_showing_piece_type = -1;
+
+	/* Read by race_result_draw() before race_result_cycle() first sets them. */
+	raceresult_trackrecord = false;
+	raceresult_laprecord = false;
+	raceresult_replaysaved = false;
 	menu_showing_piece = -1;
 	menu_showing_piece_timmer = 0;
 	menu_trackviewing_background = 0;
@@ -446,7 +451,7 @@ F1SpiritApp::~F1SpiritApp()
 	}
 
 	for (i = 0;i < 4;i++) {
-		delete menu_selected_part[i];
+		delete []menu_selected_part[i];
 		menu_selected_part[i] = 0;
 	}
 
