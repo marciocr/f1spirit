@@ -22,6 +22,16 @@
     <content_attribute id="violence-cartoon">mild</content_attribute>
   </content_rating>
   <releases>
+    <release version="1.1.1" date="2026-10-14">
+      <description>
+        <p>Fixes a crash after a race and the music sometimes stopping.</p>
+        <ul>
+          <li>Fixed a memory corruption in the car engine sound that crashed the game after a race and could stop the music</li>
+          <li>Pause menu only lists the players in the current race</li>
+          <li>Several out-of-bounds memory reads fixed</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.1.0" date="2026-10-11">
       <description>
         <p>Options menu, gamepad support and upscaling filters.</p>
