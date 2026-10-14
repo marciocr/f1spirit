@@ -379,7 +379,7 @@ bool gauss_solve_d(double *m, double *ctnt, double *s, int neq)
 		s[i] = ctnt[order[i]] / m[order[i] * neq + i];
 	} 
 
-	delete order;
+	delete []order;
 
 	return true;
 } /* gauss_solve_d */
@@ -418,7 +418,7 @@ double det_d(double *m, int size)
 		} 
 	} 
 
-	delete mt;
+	delete []mt;
 
 	return acum;
 } /* det_d */

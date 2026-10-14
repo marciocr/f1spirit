@@ -105,20 +105,23 @@ void carEngineSoundEffect_load(void)
 } /* carEngineSoundEffect_load */
 
 
+/* SDL3_mixer passes "samples" as the number of floats in pcm (frames times
+   channels), not the number of sample frames. */
 void carEngineSoundEffect(void *userdata, struct MIX_Track *track, const SDL_AudioSpec *spec, float *pcm, int samples)
 {
 	CCar *car = (CCar *)userdata;
 
 	float f;
 	int i, k;
-	int channels = spec->channels;
+	int channels = (spec->channels > 0) ? spec->channels : 1;
+	int frames = samples / channels;
 
 #ifdef F1SPIRIT_DEBUG_MESSAGES
 	output_debug_message("carEngineSoundEffect\n");
 #endif
 
 	if (engine_pcm == 0 || engine_pcm_frames <= 0) {
-		memset(pcm, 0, (size_t)samples * channels * sizeof(float));
+		memset(pcm, 0, (size_t)samples * sizeof(float));
 		return;
 	}
 
@@ -135,7 +138,9 @@ void carEngineSoundEffect(void *userdata, struct MIX_Track *track, const SDL_Aud
 
 		f = 0.5F + f;
 
-		for (i = 0;i < samples;i++) {
+		k = car->carengine_position;
+
+		for (i = 0;i < frames;i++) {
 			k = car->carengine_position + (int)(i * f);
 
 			while (k >= engine_pcm_frames)
@@ -157,7 +162,7 @@ void carEngineSoundEffect(void *userdata, struct MIX_Track *track, const SDL_Aud
 		car->carengine_position = k;
 	} else {
 		/* When the car has crashed, just set the buffer to silence: */
-		memset(pcm, 0, (size_t)samples * channels * sizeof(float));
+		memset(pcm, 0, (size_t)samples * sizeof(float));
 		car->carengine_position = 0;
 	} /* if */
 }

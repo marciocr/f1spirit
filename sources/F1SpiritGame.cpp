@@ -1886,7 +1886,7 @@ F1SpiritGame::~F1SpiritGame()
 
 	Sound_delete_sound(S_rain);
 
-	delete replay_filename;
+	delete []replay_filename;
 
 	replay_filename = 0;
 
@@ -2941,7 +2941,7 @@ bool F1SpiritGame::cycle(KEYBOARDSTATE *k)
 			} 
 		} 
 
-		delete positions;
+		delete []positions;
 	}
 
 	/* Delete crashed cars: */

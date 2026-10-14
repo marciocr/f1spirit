@@ -1185,11 +1185,12 @@ void F1SpiritApp::menu_draw(void)
 
 		x = 320 - w / 2;
 
-		{
+		menu_desired_showing_piece_x = x;
+
+		/* menu_showing_piece is -1 while no piece is highlighted. */
+		if (menu_showing_piece >= 0 && menu_showing_piece < 6) {
 			int tmpx = x + piece_x[menu_showing_piece];
 			int tmpx2 = x + piece_x[menu_showing_piece + 1];
-
-			menu_desired_showing_piece_x = x;
 
 			if (tmpx < 16)
 				menu_desired_showing_piece_x = x - (tmpx - 16);
