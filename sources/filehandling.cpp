@@ -32,6 +32,19 @@ int mkdirp(const char *fqfn, mode_t mode)
 
 #endif
 
+char *f1path(const char *f, const enum filetype t, char *fname)
+{
+#ifndef _WIN32
+	if (t == USERDATA) {
+		snprintf(fname, STRLEN - 1, "%s/.%s/%s", getenv("HOME"), GAMENAME, f);
+		return fname;
+	}
+#endif
+
+	snprintf(fname, STRLEN - 1, "%s", f);
+	return fname;
+}
+
 // new fopen()
 FILE *f1open(const char *f, const char *m, const enum filetype t)
 {

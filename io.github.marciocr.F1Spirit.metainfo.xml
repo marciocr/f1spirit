@@ -22,6 +22,17 @@
     <content_attribute id="violence-cartoon">mild</content_attribute>
   </content_rating>
   <releases>
+    <release version="1.1.2" date="2026-10-15">
+      <description>
+        <p>Fixes saving replays, deleting players and a memory corruption after multiplayer.</p>
+        <ul>
+          <li>Saving a replay from the race results works again</li>
+          <li>Deleting a saved game removes the player</li>
+          <li>Saved car designs show up in the load list</li>
+          <li>1 PLAYER and arcade races after a multiplayer game are single player again (this also fixes a memory corruption)</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.1.1" date="2026-10-14">
       <description>
         <p>Fixes a crash after a race and the music sometimes stopping.</p>
