@@ -401,7 +401,7 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 
 					sprintf(tmp2, "replays/%s.rpl", raceresult_editing);
 
-					fp = f1open(tmp2, "b", USERDATA);
+					fp = f1open(tmp2, "rb", USERDATA);
 
 					if (fp != 0) {
 						replay_name_valid = false;
@@ -409,7 +409,10 @@ int F1SpiritApp::race_result_cycle(KEYBOARDSTATE *k)
 					} 
 
 					if (replay_name_valid) {
-						if (rename(race_game->replay_filename, tmp2) != 0)
+						char from[STRLEN], to[STRLEN];
+
+						if (rename(f1path(race_game->replay_filename, USERDATA, from),
+						           f1path(tmp2, USERDATA, to)) != 0)
 							replay_name_valid = false;
 					} 
 

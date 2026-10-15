@@ -329,7 +329,10 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 							p = new CPlayerInfo();
 							p->load(fp, N_TRACKS, f1spirit_replay_version);
 							fclose(fp);
-							remove(filename);
+							{
+								char path[STRLEN];
+								remove(f1path(filename, USERDATA, path));
+							}
 							players.Add(p);
 						} 
 
@@ -441,6 +444,9 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 					break;
 
 				case 13+210:	//Start ARCADE / C4A GAME
+					/* Arcade is single player, whatever was played before. */
+					menu_selected_nplayers = 1;
+					menu_selecting_player = 0;
 					arcade_result = 0;
 					for (int i=0; i<N_TRACKS; i++)
 						current_player->set_points(i, 0);
@@ -453,6 +459,10 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 
 				case 13: { /* START GAME: */
 						arcade = ((menu_option_type[browsing][menu_selected[browsing]])>210)?1:0;
+
+						if (menu_selecting_player < 0 || menu_selecting_player > 3)
+							menu_selecting_player = 0;
+
 						/* Create the player(s) car(s): */
 						if (menu_selecting_player >= menu_selected_nplayers - 1) {
 							menu_fading = 3;
@@ -479,6 +489,12 @@ int F1SpiritApp::menu_cycle(KEYBOARDSTATE *k)
 				case 16: { /* CHANGE SFX VOLUME: */
 					}
 
+					break;
+
+				case 47:  /* 1 PLAYER (undoes a previous MULTIPLAYER choice): */
+					menu_current_menu = menu_option_parameter[browsing][menu_selected[browsing]];
+					menu_selected_nplayers = 1;
+					menu_selecting_player = 0;
 					break;
 
 				case 18:  /* SET THE NUMBER OF PLAYERS: */

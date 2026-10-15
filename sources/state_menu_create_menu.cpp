@@ -327,7 +327,7 @@ void F1SpiritApp::menu_create_menu(void)
 			menu_options[0] = new char[strlen("1 PLAYER\nMULTIPLAYER\nBACK\n") + 1];
 			strcpy(menu_options[0], "1 PLAYER\nMULTIPLAYER\nBACK\n");
 			menu_noptions[0] = 3;
-			menu_option_type[0][0] = 1;
+			menu_option_type[0][0] = 47;	/* 1 PLAYER: also resets the player count */
 			menu_option_type[0][1] = 1;
 			menu_option_type[0][2] = 1;
 			menu_option_parameter[0][0] = 9;
@@ -1099,7 +1099,11 @@ void F1SpiritApp::menu_create_menu(void)
 
 				struct dirent *ep;
 
-				dp = opendir (folders[type]);
+				{
+					/* Designs are saved under the user's data folder (SAVE uses f1open). */
+					char path[STRLEN];
+					dp = opendir(f1path(folders[type], USERDATA, path));
+				}
 
 				if (dp != NULL) {
 					while (ep = readdir (dp)) {
