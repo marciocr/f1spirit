@@ -14,6 +14,10 @@ finish-args:
   # SDL's Linux joystick backend can't see any controller without this.
   # --device=input (Flatpak >= 1.15.6) grants just /dev/input.
   - --device=input
+  # The game keeps its settings, players, replays and high scores in
+  # ~/.f1spirit/. Inside the sandbox $HOME is temporary, so without this
+  # they were lost on exit.
+  - --persist=.f1spirit
 
 modules:
   - name: SDL3
